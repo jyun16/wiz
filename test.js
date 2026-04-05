@@ -30,10 +30,10 @@ const Self = class {
     }
     this.print(v1, v2, label, op(v1, v2), depth)
   }
-	eq(v1, v2, label = '', depth) { this._chk(v1, v2, (a, b) => a == b, label, depth) }
-  ne(v1, v2, label = '', depth) { this._chk(v1, v2, (a, b) => a != b, label, depth) }
-	include(v1, v2, label = '', depth) { this.print(v1, v2, label, this._chkInclude(v1, v2), depth) }
-  exclude(v1, v2, label = '', depth) { this.print(v1, v2, label, !this._chkInclude(v1, v2), depth) }
+	eq(v1, v2, label = '', depth=3) { this._chk(v1, v2, (a, b) => a == b, label, depth) }
+  ne(v1, v2, label = '', depth=3) { this._chk(v1, v2, (a, b) => a != b, label, depth) }
+	include(v1, v2, label = '', depth=3) { this.print(v1, v2, label, this._chkInclude(v1, v2), depth) }
+  exclude(v1, v2, label = '', depth=3) { this.print(v1, v2, label, !this._chkInclude(v1, v2), depth) }
   _chkInclude(v1, v2) {
     if (typeof v1 == 'string' || Array.isArray(v1)) {
       return v2 != null && v2.includes(v1)
@@ -46,7 +46,7 @@ const Self = class {
 	_html(s) {
     return s.replace(/>\s+</g, '><').replace(/\s{2,}/g, ' ').trim()
   }
-	html(v1, v2, label = '', depth) {
+	html(v1, v2, label = '', depth=3) {
     this.print(v1, v2, label, this._html(v1) == this._html(v2), depth)
   }
 	ceq(v1, v2, label = '', depth) {
