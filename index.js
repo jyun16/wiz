@@ -110,6 +110,19 @@ export function isMap(v) { return _.isMap(v) }
 export function includes(t, v, i) { return _.includes(t, v, i) }
 export function range(...args) { return _.range(...args) }
 
+export function expandRange(r) {
+	return r.split(',').flatMap(s => {
+		const t = s.trim()
+		const m = t.match(/^(\d+)\.\.(\d+)$/)
+		if (m) {
+			const res = []
+			for (let i = parseInt(m[1]); i <= parseInt(m[2]); i++) res.push(i)
+			return res
+		}
+		return parseInt(t)
+	})
+}
+
 export function isMain(url) {
 	if (typeof process != 'undefined') {
 		return process.argv[1] === fileURLToPath(url)
@@ -168,6 +181,8 @@ if (isMain(import.meta.url)) {
 		t.eq(range(1, 10, 2), [ 1, 3, 5, 7, 9 ])
 		t.eq(includes(range(0, 3, 2), 2), true)
 		isEmptyTest(t)
+		t.eq([ 1, 2, 3 ], expandRange('1..3'))
+		t.eq([ 1, 2, 3, 5, 8, 9, 10 ], expandRange('1..3, 5, 8..10'))
 
 //    p(`WHITE ^RRED ^GGREEN ^BBLUE ^YYELLOW ^MMAGENTA ^CCYAN ^WWHITE ^^W ^GGREEN`)
 //    pr('hoge', { hoge: 'HOGE' })
