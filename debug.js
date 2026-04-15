@@ -1,5 +1,3 @@
-import beautify from 'js-beautify'
-
 import { isMain } from './index.js'
 
 const _dd = v => typeof v	== 'object' ? JSON.stringify(v, null, 2) : v
@@ -14,17 +12,23 @@ export function dd(...args) { return dump(args) }
 export const d = (...args) => console.dir(args.length === 1 ? args[0] : args, { depth: null })
 
 export function dh(html) {
-	const fmt = beautify.html(html, {
-		indent_size: 2,
-		unformatted: [],
-		inline: []
-	})
-	const colored = fmt
-		.replace(/<(\/?)([\w-]+)/g, '\x1b[36m<$1$2\x1b[0m')
-		.replace(/([\w@:-]+)=/g, '\x1b[33m$1\x1b[0m=')
-		.replace(/"([^"]*)"/g, '\x1b[32m"$1"\x1b[0m')
-		.replace(/>/g, '\x1b[36m>\x1b[0m')
-	console.log(colored)
+  let indent = 0
+  const fmt = html
+    .replace(/>\s*</g, '>\n<')
+    .split('\n')
+    .map(line => {
+      if (line.match(/^<\//)) indent--
+      const s = '  '.repeat(Math.max(0, indent)) + line
+      if (line.match(/^<[^/].*[^/]>$/)) indent++
+      return s
+    })
+    .join('\n')
+  const colored = fmt
+    .replace(/<(\/?)([\w-]+)/g, '\x1b[36m<$1$2\x1b[0m')
+    .replace(/([\w@:-]+)=/g, '\x1b[33m$1\x1b[0m=')
+    .replace(/"([^"]*)"/g, '\x1b[32m"$1"\x1b[0m')
+    .replace(/>/g, '\x1b[36m>\x1b[0m')
+  console.log(colored)
 }
 
 export function caller(depth = 0) {
@@ -87,5 +91,4 @@ export function diep(...a) {
 }
 
 if (isMain(import.meta.url)) {
-
 }
