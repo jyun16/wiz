@@ -7,37 +7,65 @@ export function urlBase(url) {
 }
 
 export function parseQuery(url) {
-	if (/^https?:/.test(url)) {
-		if (lodash.isString(url)) { url = new URL(url) }
-		return Object.fromEntries(url.searchParams)
-	}
-	let [ query, s ] = url.split('?')
-	if (s) { query = s }
+	const h = url.indexOf('#')
+	const u = h === -1 ? url : url.slice(0, h)
+	const q = u.indexOf('?')
+	const s = q === -1 ? u : u.slice(q + 1)
 	const ret = {}
-	for (let kv of query.split('&')) {
-		const [ k, v ] = kv.split('=')
-		ret[encodeURIComponent(k)] = encodeURIComponent(v)
+	if (!s) return ret
+	for (const kv of s.split('&')) {
+		const i = kv.indexOf('=')
+		const k = decodeURIComponent(i === -1 ? kv : kv.slice(0, i))
+		if (!k) continue
+		const v = i === -1 ? '' : decodeURIComponent(kv.slice(i + 1))
+		if (ret[k] !== undefined) {
+			if (!Array.isArray(ret[k])) ret[k] = [ret[k]]
+			ret[k].push(v)
+		}
+		else {
+			ret[k] = v
+		}
 	}
 	return ret
 }
 
 export function buildQuery(p) {
-	return (new URLSearchParams(p)).toString()
+	const r = []
+	for (const k in p) {
+		const v = p[k]
+		const ek = encodeURIComponent(k)
+		if (Array.isArray(v)) {
+			for (const vv of v) r.push(`${ek}=${encodeURIComponent(vv)}`)
+		}
+		else {
+			r.push(`${ek}=${encodeURIComponent(v)}`)
+		}
+	}
+	return r.join('&')
 }
 
-export function appendQuery(url, p={}) {
-	if (lodash.isString(url)) { url = new URL(url) }
-	p = { ...(Object.fromEntries((new URLSearchParams(url.search).entries()))), ...p }
-	return url.origin + url.pathname + (Object.keys(p).length ? `?${buildQuery(p)}` : '')
+export function appendQuery(url, p = {}) {
+	const h = url.indexOf('#')
+	const hash = h === -1 ? '' : url.slice(h)
+	const u = h === -1 ? url : url.slice(0, h)
+	const q = u.indexOf('?')
+	const base = q === -1 ? u : u.slice(0, q)
+	const qs = buildQuery({ ...parseQuery(q === -1 ? '' : u.slice(q + 1)), ...p })
+	return base + (qs ? `?${qs}` : '') + hash
 }
 
-export function removeQuery(url, names=[]) {
-	if (!Array.isArray(names)) { names = names.split(',') }
-	let [ ret, q ] = url.split('?')
-	q = Object.fromEntries((new URLSearchParams(q).entries()))
-	for (const name of names) { delete q[name] }
-	if (Object.keys(q).length) { ret += '?' + new URLSearchParams(q).toString() }
-	return ret
+export function removeQuery(url, names = []) {
+	const h = url.indexOf('#')
+	const hash = h === -1 ? '' : url.slice(h)
+	const u = h === -1 ? url : url.slice(0, h)
+	const q = u.indexOf('?')
+	if (q === -1) return url
+	const base = u.slice(0, q)
+	const params = parseQuery(u.slice(q + 1))
+	const n = Array.isArray(names) ? names : names.split(',')
+	for (const k of n) delete params[k]
+	const qs = buildQuery(params)
+	return base + (qs ? `?${qs}` : '') + hash
 }
 
 export function escapeHtml(html, allow=null) {
