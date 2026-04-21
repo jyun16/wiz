@@ -18,6 +18,28 @@ export function now() {
 	return dateFormat(new Date())
 }
 
+export function ymd() {
+	const n = new Date()
+	return [ n.getFullYear(), n.getMonth() + 1, n.getDate() ]
+}
+
+export function ymdStr() {
+	const n = new Date()
+	const y = String(n.getFullYear())
+	const [ m, d ] = [ n.getMonth() + 1, n.getDate() ].map(v => String(v).padStart(2, '0'))
+	return [ y, m, d ]
+}
+
+export function hms() {
+	const n = new Date()
+	return [ n.getHours(), n.getMinutes(), n.getSeconds() ]
+}
+
+export function hmsStr() {
+	const n = new Date()
+	return [ n.getHours(), n.getMinutes(), n.getSeconds() ].map(v => String(v).padStart(2, '0'))
+}
+
 export function nowObj() {
 	return dayjs()
 }
@@ -73,8 +95,10 @@ export function trimDir(path, cd = '..') {
 
 if (isMain(import.meta.url)) {
 	(async () => {
+		const { d } = await import('./debug.js')
 		const Test = (await import('./test.js')).default
 		const t = new Test()
-
+		d(ymdStr())
+		d(ymd())
 	})()
 }
