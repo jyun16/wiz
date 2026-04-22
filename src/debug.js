@@ -77,13 +77,3 @@ export function _p(a) {
 }
 export function pg(...a) { p(`^G${_p(a)}`) }
 export function pr(...a) { p(`^R${_p(a)}`) }
-
-export function die(...a) {
-	pr(...a)
-	process.exit()
-}
-
-export function diep(...a) {
-	p(...a)
-	process.exit()
-}

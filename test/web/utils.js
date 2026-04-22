@@ -1,4 +1,4 @@
-import { p, cl, isMain, includes } from '../../src/index.js'
+import { includes } from '../../src/index.js'
 import Test from '../../src/test.js'
 import { escapeHtml, safeTags, removeQuery } from '../../src/web/utils.js'
 

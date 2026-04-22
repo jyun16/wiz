@@ -1,5 +1,5 @@
 import util from 'util'
-import { cl, isMain, isEmpty, isArray, array2map, clone, setMapVal, sprintf } from '../src/index.js'
+import { isEmpty, isArray, array2map, clone, setMapVal, sprintf } from '../src/index.js'
 import Test from '../src/test.js'
 import Validator from '../src/validator.js'
 

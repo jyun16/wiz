@@ -1,4 +1,4 @@
-import { cl, isMain, isEmpty, isArray, isObject, isString, split, getMapVal, setMapVal, hasMapKey, deleteMapVal } from '../src/index.js'
+import { isEmpty, isArray, isObject, isString, split, getMapVal, setMapVal, hasMapKey, deleteMapVal } from '../src/index.js'
 import Test from '../src/test.js'
 import Role from '../src/role.js'
 

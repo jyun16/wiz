@@ -1,4 +1,4 @@
-import { d } from '../src/index.js'
+import { d } from '../src/debug.js'
 import Test from '../src/test.js'
 import { ymd, ymdStr } from '../src/date.js'
 

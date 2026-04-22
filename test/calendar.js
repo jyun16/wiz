@@ -1,4 +1,4 @@
-import { d, expandRange, isMain } from '../src/index.js'
+import { expandRange, isMain } from '../src/index.js'
 import {isPublicHoliday, isHoliday, getCalendarDays } from '../src/calendar.js'
 import Test from '../src/test.js'
 

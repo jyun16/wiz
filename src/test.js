@@ -1,4 +1,4 @@
-import { p, caller } from './index.js'
+import { p, caller } from './debug.js'
 
 const Self = class {
 

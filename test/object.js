@@ -1,7 +1,6 @@
 import {
 	setMapVal, deleteMapVal, hasMapKey, sliceMapVal, spliceMapVal, reduceMap, addCountMap,
 	getMapVal, getMapKeys, deleteMapByVal
-	
 } from '../src/object.js'
 
 import Test from '../src/test.js'
