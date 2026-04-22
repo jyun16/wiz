@@ -1,0 +1,165 @@
+const CONF = {
+	port: 8080,
+	https: {
+		enable: 0,
+	},
+	static: 'public/',
+}
+
+import fs from 'fs'
+import path from 'path'
+import { execSync } from 'child_process'
+import { series, parallel, watch, src, dest, lastRun } from 'gulp'
+import _browserSync from 'browser-sync'
+import plumber from 'gulp-plumber'
+import rename from 'gulp-rename'
+import pug from 'gulp-pug'
+
+const d = console.log
+const browserSync = _browserSync.create()
+
+const bs = () => {
+	const opts = {
+		host: '0.0.0.0',
+		port: CONF.port,
+		server: {
+			baseDir: CONF.static,
+		},
+		ui: false,
+		open: false,
+	}
+	if (CONF.https.enable) {
+		opts.https = {
+			cert: CONF.https.cert,
+			key: CONF.https.key,
+		}
+	}
+	browserSync.init(opts)
+}
+
+const bsr = cb => {
+	browserSync.reload()
+	cb()
+}
+
+const htmlEscape = html => html.replace(/[&'`"<>]/g, m => {
+	return {
+		'&': '&amp;',
+		"'": '&#x27;',
+		'`': '&#x60;',
+		'"': '&quot;',
+		'<': '&lt;',
+		'>': '&gt;',
+	}[m]
+})
+const pug_dir = [ 'pug/**/*.pug', '!pug/_layout/*.pug' ]
+const pugw = () => { watch(pug_dir, series(pugc, bsr)) }
+const pugc = () => {
+	return src(pug_dir)
+		.pipe(plumber())
+		.pipe(pug({
+			pretty: true,
+			filters: {
+				html: data => htmlEscape(data),
+				scss: data => _sass.compileString(data).css
+			},
+		}))
+		.pipe(rename({ extname: '.html' }))
+		.pipe(dest(CONF.static))
+}
+
+const pug_include_dir = [ 'pug/_layout/*.pug' ]
+function pug_include_w(cb) { watch(pug_include_dir, series(pugc, bsr)); cb() }
+
+const jqcw = () => { watch('jqc/**/*.jqc', series(jqcc, bsr)) }
+const jqcc = cb => {
+	d(execSync(`${make} jqc`).toString())
+	cb()
+}
+
+export default parallel(bs, pugw, pug_include_w)
+
+const ls = (dir, ret) => {
+	if (!ret) { ret = [] }
+	fs.readdirSync(dir).forEach(file => {
+		let p = path.join(dir, file)
+		if (fs.lstatSync(p).isDirectory()) {
+			ls(p, ret)
+		}
+		else {
+			ret.push(p)
+		}	
+	})
+	return ret
+}
+
+const fileExists = file => {
+	try {
+		if (fs.existsSync(file)) {
+			return true
+		}
+	}
+	catch(err) {
+		return false
+	}
+}
+
+const checkIgnore = (regs, str) => {
+	for (let re of regs) {
+		if ((new RegExp(re)).test(str)) {
+			return true
+		}
+	}
+	return false
+}
+
+const exec = cmd => d(cmd, execSync(cmd).toString())
+
+const rmTrash = (src, dest, map) => {
+	const files = ls(src).map(f => f.replace(`${src}/`, '').replace(map.src, ''))
+	ls(dest).forEach(f => {
+		const p = f.replace(`${dest}/`, '').replace(map.dst, '')
+		if (!files.includes(p)) {
+			exec(`rm ${f}`)
+		}
+	})
+}
+
+const cu = {
+	html: cb => {
+		const ignore = [ '^css/', '^js/', '^fonts/', 'favicon.ico' ]
+		const files = ls('pug').map(x => x.replace(/pug\//, ''))
+		for (let f of ls(CONF.static)) {
+			f = f.replace(CONF.static, '')
+			if (checkIgnore(ignore, f)) { continue }
+			const ff = f.replace('.html', `.pug`)
+			if (!files.includes(ff)) {
+				exec(`rm ${CONF.static}${f}`)
+			}
+		}
+		cb()
+	},
+	js: cb => {
+		rmTrash('js', `${CONF.static}js`, { src: '.js', dst: '.min.js' })
+		cb()
+	},
+	css: cb => {
+		rmTrash('scss', `${CONF.static}css`, { src: '.scss', dst: '.min.css' })
+		cb()
+	},
+	jqc: cb => {
+		rmTrash('jqc', 'js/jqc', { src: '.jqc', dst: '.jqc.js' })
+		rmTrash('jqc', `${CONF.static}js/jqc`, { src: '.jqc', dst: '.jqc.min.js' })
+		cb()
+	},
+	empty: cb => {
+		execSync(`find ${CONF.static} -type d -empty`).toString().split("\n").forEach(f => {
+			if (f) {
+				exec(`rm -r ${f}`)
+			}
+		})
+		cb()
+	},
+}
+
+export const clean = series(parallel(cu.html, cu.js, cu.css, cu.jqc), cu.empty)
