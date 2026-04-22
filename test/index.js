@@ -1,5 +1,6 @@
+import { p, pr, cl } from '../src/debug.js'
 import {
-	p, pr, cl, range, includes, isNull, isEmpty, expandRange,
+	range, includes, isNull, isEmpty, expandRange,
 	codePoint2Char, char2CodePoint, randStrTough, removeIndent, tab2sp
 } from '../src/index.js'
 import Test from '../src/test.js'
