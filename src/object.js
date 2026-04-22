@@ -13,7 +13,7 @@ export const trimObject = o => {
 	return o
 }
 
-export function addCountMap(obj, key) {
+export function addCountObj(obj, key) {
 	const r = {}
 	if (!(key in obj)) {
 		for (const k in obj) r[k] = obj[k] + 1
@@ -27,7 +27,7 @@ export function addCountMap(obj, key) {
 	return objectSortByVal(r, true)
 }
 
-export function sliceMap(a, offset, limit) {
+export function sliceObj(a, offset, limit) {
 	return Object.fromEntries(Object.entries(a).slice(offset, offset + limit))
 }
 
@@ -74,7 +74,7 @@ function splitPath(key) {
 	return key;
 }
 
-export function setMapVal(obj, key, value) {
+export function setObjVal(obj, key, value) {
 	const path = splitPath(key);
 	let cur = obj;
 	for (let i = 0; i < path.length; i++) {
@@ -93,7 +93,7 @@ export function setMapVal(obj, key, value) {
 	return obj;
 }
 
-export function getMapVal(obj, key) {
+export function getObjVal(obj, key) {
 	const path = splitPath(key);
 	let cur = obj;
 	for (const k of path) {
@@ -103,7 +103,7 @@ export function getMapVal(obj, key) {
 	return cur;
 }
 
-export function deleteMapVal(obj, key) {
+export function deleteObjVal(obj, key) {
 	const path = splitPath(key);
 	let cur = obj;
 	for (let i = 0; i < path.length - 1; i++) {
@@ -114,7 +114,7 @@ export function deleteMapVal(obj, key) {
 	delete cur[path[path.length - 1]];
 }
 
-export function hasMapKey(obj, key) {
+export function hasObjKey(obj, key) {
 	const path = splitPath(key);
 	let cur = obj;
 	for (const k of path) {
@@ -124,7 +124,7 @@ export function hasMapKey(obj, key) {
 	return true;
 }
 
-export function deleteMapByVal(obj, value) {
+export function deleteObjByVal(obj, value) {
 	for (const k in obj) {
 		if (obj[k] === value) {
 			delete obj[k];
@@ -134,24 +134,24 @@ export function deleteMapByVal(obj, value) {
 	return null;
 }
 
-function _getMapKeys(ret, map, pk) {
+function _getObjKeys(ret, map, pk) {
 	for (let k in map) {
 		const v = map[k];
 		const key = `${pk}.${k}`;
 		if (isObject(v)) {
-			_getMapKeys(ret, v, key);
+			_getObjKeys(ret, v, key);
 		} else {
 			ret.push(key);
 		}
 	}
 }
 
-export function getMapKeys(map) {
+export function getObjKeys(map) {
 	const ret = [];
 	for (let k in map) {
 		const v = map[k];
 		if (isObject(v)) {
-			_getMapKeys(ret, v, k);
+			_getObjKeys(ret, v, k);
 		} else {
 			ret.push(k);
 		}
@@ -159,14 +159,14 @@ export function getMapKeys(map) {
 	return ret;
 }
 
-export function sliceMapVal(obj, key, start, end) {
-	const arr = getMapVal(obj, key);
+export function sliceObjVal(obj, key, start, end) {
+	const arr = getObjVal(obj, key);
 	if (!Array.isArray(arr)) throw new Error(`Value at "${key}" is not an array`);
 	return arr.slice(start, end);
 }
 
-export function spliceMapVal(obj, key, start, deleteCount, ...items) {
-	const arr = getMapVal(obj, key);
+export function spliceObjVal(obj, key, start, deleteCount, ...items) {
+	const arr = getObjVal(obj, key);
 	if (!Array.isArray(arr)) throw new Error(`Value at "${key}" is not an array`);
 	return arr.splice(start, deleteCount, ...items);
 }

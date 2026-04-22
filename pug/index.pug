@@ -4,7 +4,7 @@ html
 		title wiz test
 		script(type='module').
 			import {
-				d, json, array2map, randStr, hasMapKey, now,
+				d, json, array2map, randStr, hasObjKey, now,
 				validation, calendar, web
 			} from '/js/wiz/index.min.js'
 			// index.js
@@ -14,7 +14,7 @@ html
 			// string.js
 			d(randStr())
 			// object/js
-			d(hasMapKey({ foo: 'FOO', hoge: { fuga: { foo: { bar: true } } } }, 'hoge.fuga.foo.bar'))
+			d(hasObjKey({ foo: 'FOO', hoge: { fuga: { foo: { bar: true } } } }, 'hoge.fuga.foo.bar'))
 			// date.js
 			d(now())
 			d(validation.equal(1, 1))

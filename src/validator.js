@@ -1,4 +1,4 @@
-import { isEmpty, isArray, array2map, clone, setMapVal, sprintf } from './index.js'
+import { isEmpty, isArray, array2map, clone, setObjVal, sprintf } from './index.js'
 import validation from './validation.js'
 
 class Self {
@@ -36,7 +36,7 @@ class Self {
 	}
 	customMessage(method, msg) {
 		if (method.includes('.')) {
-			setMapVal(this.message, method, msg)
+			setObjVal(this.message, method, msg)
 		}
 		else {
 			this.message[method] = msg
