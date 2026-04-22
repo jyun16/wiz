@@ -22,17 +22,17 @@ export function isPublicHoliday(day) {
 	return PUBLIC_HOLIDAYS.has(s)
 }
 
-
 export function getCalendarDays(y, m) {
-  const get = (y, m) => {
-    const p = new Date(y, m - 1, 0).getDate()
-    const c = new Date(y, m, 0).getDate()
-    const w = new Date(y, m - 1, 1).getDay()
-    const d = []
-    if (w > 0) d.push([m === 1 ? 12 : m - 1, `${p - w + 1}..${p}`])
-    d.push([m, `1..${c}`])
-    d.push([m === 12 ? 1 : m + 1, `1..${42 - (w + c)}`])
-    return d
+  const first = new Date(y, m - 1, 1)
+  const startDay = first.getDay()
+  const res = []
+  for (let i = 0; i < 42; i++) {
+    const date = new Date(y, m - 1, i - startDay + 1)
+    const dy = date.getFullYear()
+    const dm = date.getMonth() + 1
+    const d = date.getDate()
+    const w = PUBLIC_HOLIDAYS.has(`${dy}-${dm}-${d}`) ? 7 : date.getDay() 
+    res.push([dm === m ? 1 : 0, w, d])
   }
-  return m ? get(y, m) : [...Array(12)].map((_, i) => get(y, i + 1))
+  return res
 }
