@@ -7,9 +7,9 @@ export function uc(v) { return v.toUpperCase() }
 export function ucfirst(v) { return _.upperFirst(v) }
 export function lc(v) { return v.toLowerCase() }
 export function lcfirst(v) { return _.lowerFirst(v) }
-export function toCamel(v) { return _.camelCase(v) }
-export function toSnake(v) { return _.snakeCase(v) }
-export function toKebab(v) { return _.kebabCase(v) }
+export function toCamel(v) { return v.replace(/[-_ ]+(.)/g, (m, c) => c.toUpperCase()).replace(/^(.)/, (m, c) => c.toLowerCase()) }
+export function toSnake(v) { return v.replace(/[A-Z]/g, (m) => `_${m.toLowerCase()}`).replace(/[- ]+/g, '_').replace(/^_+|_+$/g, '') }
+export function toKebab(v) { return v.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`).replace(/[_ ]+/g, '-').replace(/^-+|-+$/g, '') }
 export function toPascal(v) { return _.upperFirst(_.camelCase(v)) }
 export function htmlEscape(v) { return _.escape(v) }
 

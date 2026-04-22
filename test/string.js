@@ -1,5 +1,5 @@
 import {
-	toPascal, comma, escape4regexp, wildMatch, omit
+	toPascal, comma, escape4regexp, wildMatch, omit, toCamel
 } from '../src/string.js'
 import Test from '../src/test.js'
 
@@ -13,3 +13,5 @@ t.true(wildMatch('*.js', 'hoge.js'))
 t.false(wildMatch('*.js', 'hoge.pl'))
 t.eq(omit('あいうえお', 3), 'あいう...')
 t.eq(omit('あいう', 10), 'あいう')
+t.eq(toCamel('btn.close'), 'btn.close')
+t.eq(toCamel('btn.closeBtn'), 'btn.closeBtn')
