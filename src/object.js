@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { isString, isObject } from './index.js'
+import { equal, isString, isObject } from './index.js'
 
 export function merge(v1, v2) { return _.merge({}, v1, v2) } 
 
@@ -173,7 +173,7 @@ export function diffObj(keys, obj, old) {
 		else if (val === undefined && prev !== undefined) {
 			removed[path] = prev
 		}
-		else if (!isEqual(val, prev)) {
+		else if (!equal(val, prev)) {
 			changed[path] = val
 		}
 	}
