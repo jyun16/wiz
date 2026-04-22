@@ -1,5 +1,5 @@
 import {
-	setMapVal, deleteMapVal, hasMapKey, sliceMapVal, spliceMapVal, reduceMap, addCountMap,
+	setMapVal, deleteMapVal, hasMapKey, sliceMapVal, spliceMapVal, sliceMap, addCountMap,
 	getMapVal, getMapKeys, deleteMapByVal
 } from '../src/object.js'
 
@@ -59,7 +59,7 @@ deleteMapByVal(mmm, null)
 deleteMapByVal(mmm, '')
 t.eq(mmm, { hoge: 'HOGE' })
 
-t.eq(reduceMap({ hoge: 10, fuga: 11, foo: 12, bar: 13, baz: 14 }, 1, 3), { fuga: 11, foo: 12, bar: 13 })
+t.eq(sliceMap({ hoge: 10, fuga: 11, foo: 12, bar: 13, baz: 14 }, 1, 3), { fuga: 11, foo: 12, bar: 13 })
 
 let m = {}
 m = addCountMap(m, 'hoge')

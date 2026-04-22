@@ -1,2 +1,28 @@
-
-<p>hoge</p>
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>wiz test</title>
+    <script type="module">
+      import {
+      	d, json, array2map, randStr, hasMapKey, now,
+      	validation, calendar, web
+      } from '/js/wiz/index.min.js'
+      // index.js
+      d(json({ hoge: 'HOGE' }))
+      // array.js
+      d(array2map([ 'a', 'b' ]))
+      // string.js
+      d(randStr())
+      // object/js
+      d(hasMapKey({ foo: 'FOO', hoge: { fuga: { foo: { bar: true } } } }, 'hoge.fuga.foo.bar'))
+      // date.js
+      d(now())
+      d(validation.equal(1, 1))
+      d(calendar.isPublicHoliday('2026-05-03'))
+      d(web.escapeHtml('hoge<br>hoge'))
+    </script>
+  </head>
+  <body>
+    <p>LOADED...</p>
+  </body>
+</html>

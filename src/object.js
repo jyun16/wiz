@@ -27,7 +27,7 @@ export function addCountMap(obj, key) {
 	return objectSortByVal(r, true)
 }
 
-export function reduceMap(a, offset, limit) {
+export function sliceMap(a, offset, limit) {
 	return Object.fromEntries(Object.entries(a).slice(offset, offset + limit))
 }
 

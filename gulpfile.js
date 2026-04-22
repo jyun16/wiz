@@ -14,6 +14,7 @@ import _browserSync from 'browser-sync'
 import plumber from 'gulp-plumber'
 import rename from 'gulp-rename'
 import pug from 'gulp-pug'
+import esbuild from 'gulp-esbuild'
 
 const d = console.log
 const browserSync = _browserSync.create()
@@ -40,6 +41,23 @@ const bs = () => {
 const bsr = cb => {
 	browserSync.reload()
 	cb()
+}
+
+const js_dir = [ 'src/index.js' ]
+const jsw = () => { watch(js_dir, series(jsc, bsr)) }
+const jsc = () => {
+	return src(js_dir)
+		.pipe(plumber())	
+		.pipe(esbuild({
+			bundle: true,
+			minify: true,
+			target: 'es2015',
+			platform: 'browser',
+			format: 'esm',
+			external: [ '*/test.js', '*/debug.js' ],
+			outfile: 'wiz/index.min.js',
+		}))
+		.pipe(dest(CONF.static + 'js/'))
 }
 
 const htmlEscape = html => html.replace(/[&'`"<>]/g, m => {
@@ -77,7 +95,7 @@ const jqcc = cb => {
 	cb()
 }
 
-export default parallel(bs, pugw, pug_include_w)
+export default parallel(bs, jsw, jsc, pugw, pug_include_w)
 
 const ls = (dir, ret) => {
 	if (!ret) { ret = [] }

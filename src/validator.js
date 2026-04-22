@@ -1,4 +1,3 @@
-import util from 'util'
 import { isEmpty, isArray, array2map, clone, setMapVal, sprintf } from './index.js'
 import validation from './validation.js'
 

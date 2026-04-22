@@ -1,3 +1,5 @@
+import colors from 'colors'
+
 const _dd = v => typeof v	== 'object' ? JSON.stringify(v, null, 2) : v
 function dump(args, depth = 2) {
 	let out = args.map(v => _dd(v)).join(' ')

@@ -1,27 +1,6 @@
 import _ from 'lodash'
-import util from 'util'
-import { fileURLToPath } from 'url'
-import colors from 'colors'
 
-const colorMap = {
-	R: 'red',
-	G: 'green',
-	B: 'blue',
-	Y: 'yellow',
-	M: 'magenta',
-	C: 'cyan',
-	W: 'white',
-}
-
-export function die(...a) {
-	pr(...a)
-	process.exit()
-}
-
-export function diep(...a) {
-	p(...a)
-	process.exit()
-}
+export const d = (...args) => console.dir(args.length === 1 ? args[0] : args, { depth: null })
 
 export function json(x) { return JSON.stringify(x) }
 export function parseJson(x) { return JSON.parse(x) }
@@ -71,12 +50,6 @@ export function expandRange(r) {
 	})
 }
 
-export function isMain(url) {
-	if (typeof process != 'undefined') {
-		return process.argv[1] === fileURLToPath(url)
-	}
-}
-
 export function define(name, value) {
 	Object.defineProperty(global, name, { value:value, writable:false, configurable:false })
 }
@@ -97,48 +70,8 @@ export * from './array.js'
 export * from './string.js'
 export * from './object.js'
 export * from './date.js'
-
-if (isMain(import.meta.url)) {
-	const isEmptyTest = t => {
-		t.true(isNull(null))
-		t.true(isNull(undefined))
-		t.true(isNull())
-		t.true(isEmpty({}))
-		t.true(isEmpty([]))
-		t.true(isEmpty(null))
-		t.true(isEmpty(''))
-		t.false(isEmpty('0'))
-		t.false(isEmpty({ hoge: 'HOGE' }))
-		t.false(isEmpty([ '' ]))
-		t.false(isEmpty(0))
-		t.false(isEmpty(10))
-	}
-	(async () => {
-		const Test = (await import('./test.js')).default
-		const t = new Test()
-
-		t.eq(range(1, 10, 2), [ 1, 3, 5, 7, 9 ])
-		t.eq(includes(range(0, 3, 2), 2), true)
-		isEmptyTest(t)
-		t.eq([ 1, 2, 3 ], expandRange('1..3'))
-		t.eq([ 1, 2, 3, 5, 8, 9, 10 ], expandRange('1..3, 5, 8..10'))
-
-//    p(`WHITE ^RRED ^GGREEN ^BBLUE ^YYELLOW ^MMAGENTA ^CCYAN ^WWHITE ^^W ^GGREEN`)
-//    pr('hoge', { hoge: 'HOGE' })
-//    pr({ hoge: 'HOGE' })
-//    cl(codePoint2Char('U+1F923'))
-//    cl(codePoint2Char(0x1F923))
-//    cl(char2CodePoint('🤣'))
-//    cl(randStrTough())
-//    cl(tab2sp(removeIndent(`
-//    export function deepFreeze(o = {}) {
-//      for (const [ k, v ] of Object.entries(o)) {
-//        if (v && typeof v == 'object') {
-//          deepFreeze(v)
-//        }
-//      }
-//      return Object.freeze(o)
-//    }
-//    `)))
-	})()
-}
+export * as calendar from './calendar.js'
+export * as web from './web/utils.js'
+export { default as validation } from './validation.js'
+export { default as Validator } from './validator.js'
+export { default as Role } from './role.js'

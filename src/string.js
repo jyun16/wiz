@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import crypto from 'crypto'
+import { MD5, SHA1, SHA256, SHA512, Base64 } from 'crypto-es'
 import { isEmpty } from './index.js'
 
 export function trim(v) { return _.trim(v) } 
@@ -54,21 +54,29 @@ export function wildMatch(w, str) {
 
 export function randStr(len = 16) {
 	const S = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-	return Array.from(crypto.randomFillSync(new Uint8Array(len))).map((n) => S[ n % S.length ]).join('')
+	return Array.from(crypto.getRandomValues(new Uint8Array(len))).map((n) => S[ n % S.length ]).join('')
 }
 
 export function randStrTough(len = 16) {
 	const S = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:'"<>,.?/`
-	return Array.from(crypto.randomFillSync(new Uint8Array(len))).map((n) => S[ n % S.length ]).join('')
+	return Array.from(crypto.getRandomValues(new Uint8Array(len))).map((n) => S[ n % S.length ]).join('')
+}
+
+const algMap = {
+	md5: MD5,
+	sha1: SHA1,
+	sha256: SHA256,
+	sha512: SHA512
 }
 
 export function hash(str, alg = 'sha512') {
-	const ret = crypto.createHash(alg).update(str).digest('base64')
-	return ret.slice(0, -2)
+	const hashFn = algMap[alg.toLowerCase()]
+	if (!hashFn) throw new Error(`Unsupported alg: ${alg}`)
+	return hashFn(str).toString(Base64).slice(0, -2)
 }
 
-export function compareHash(hash, str, alg = 'sha512') {
-	return crypto.createHash(alg).update(str).digest('base64').slice(0, -2) == hash
+export function compareHash(hashed, str, alg = 'sha512') {
+	return hash(str, alg) === hashed
 }
 
 export function tab2sp(text, sp=2) {
@@ -101,26 +109,26 @@ export function char2CodePoint(char) {
 }
 
 export function sprintf(format, ...args) {
-  let i = 0
-  return format.replace(/%([0]?\d*)([sdif])/g, (match, pad, type) => {
-    let val = args[i++]
-    switch (type) {
-      case 'd':
-      case 'i':
-        val = parseInt(val)
-        break
-      case 'f':
-        val = parseFloat(val)
-        break
-      case 's':
-        val = String(val)
-        break
-    }
-    if (pad) {
-      const width = parseInt(pad.replace(/^0/, ''))
-      const isZeroPad = pad.startsWith('0')
-      return String(val).padStart(width, isZeroPad ? '0' : ' ')
-    }
-    return val
-  })
+	let i = 0
+	return format.replace(/%([0]?\d*)([sdif])/g, (match, pad, type) => {
+		let val = args[i++]
+		switch (type) {
+			case 'd':
+			case 'i':
+				val = parseInt(val)
+				break
+			case 'f':
+				val = parseFloat(val)
+				break
+			case 's':
+				val = String(val)
+				break
+		}
+		if (pad) {
+			const width = parseInt(pad.replace(/^0/, ''))
+			const isZeroPad = pad.startsWith('0')
+			return String(val).padStart(width, isZeroPad ? '0' : ' ')
+		}
+		return val
+	})
 }
