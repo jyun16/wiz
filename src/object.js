@@ -159,6 +159,37 @@ export function getObjKeys(map) {
 	return ret;
 }
 
+export function diffObj(keys, obj, old) {
+	const created = {}
+	const changed = {}
+	const removed = {}
+	for (let i = 0, len = keys.length; i < len; i++) {
+		const path = keys[i]
+		const val = getObjVal(obj, path)
+		const prev = getObjVal(old, path)
+		if (val !== undefined && prev === undefined) {
+			created[path] = val
+		}
+		else if (val === undefined && prev !== undefined) {
+			removed[path] = prev
+		}
+		else if (!isEqual(val, prev)) {
+			changed[path] = val
+		}
+	}
+	return { created, changed, removed }
+}
+
+export function filterObj(obj, keys) {
+	const res = { ...obj }
+	for (const k of keys) delete res[k]
+	return res
+}
+
+export function pickObj(obj, keys) {
+	return keys.reduce((res, k) => (k in obj && (res[k] = obj[k]), res), {})
+}
+
 export function sliceObjVal(obj, key, start, end) {
 	const arr = getObjVal(obj, key);
 	if (!Array.isArray(arr)) throw new Error(`Value at "${key}" is not an array`);

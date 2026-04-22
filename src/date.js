@@ -18,24 +18,49 @@ export function now() {
 	return dateFormat(new Date())
 }
 
-export function ymd() {
+export function ymd(v) {
+	if (v)  {
+		const [ y, m, d ] = v.split('-')
+		return [ parseInt(y), parseInt(m), parseInt(d) ]
+	}
 	const n = new Date()
 	return [ n.getFullYear(), n.getMonth() + 1, n.getDate() ]
 }
 
-export function ymdStr() {
+export function ymdStr(v) {
+	if (v) return v.split('-')
 	const n = new Date()
 	const y = String(n.getFullYear())
 	const [ m, d ] = [ n.getMonth() + 1, n.getDate() ].map(v => String(v).padStart(2, '0'))
 	return [ y, m, d ]
 }
 
-export function hms() {
+export function hm(v) {
+	if (v)  {
+		const [ h, m, s ] = v.split(':')
+		return [ parseInt(h), parseInt(m) ]
+	}
+	const n = new Date()
+	return [ n.getHours(), n.getMinutes() ]
+}
+
+export function hmStr(v) {
+	if (v) return v.split(':')
+	const n = new Date()
+	return [ n.getHours(), n.getMinutes() ].map(v => String(v).padStart(2, '0'))
+}
+
+export function hms(v) {
+	if (v)  {
+		const [ h, m, s ] = v.split(':')
+		return [ parseInt(h), parseInt(m), parseInt(s) ]
+	}
 	const n = new Date()
 	return [ n.getHours(), n.getMinutes(), n.getSeconds() ]
 }
 
-export function hmsStr() {
+export function hmsStr(v) {
+	if (v) return v.split(':')
 	const n = new Date()
 	return [ n.getHours(), n.getMinutes(), n.getSeconds() ].map(v => String(v).padStart(2, '0'))
 }
