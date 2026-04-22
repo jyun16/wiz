@@ -1,4 +1,4 @@
-import { isEmpty, isArray, array2map, clone, setObjVal, sprintf } from './index.js'
+import { isEmpty, isArray, array2map, deepClone, setObjVal, sprintf } from './index.js'
 import validation from './validation.js'
 
 class Self {
@@ -6,7 +6,7 @@ class Self {
 		this.lang = lang
 		this.error = {}
 		this.hasError = _ => !isEmpty(this.error)
-		this.message = clone(Self.base_message[this.lang])
+		this.message = deepClone(Self.base_message[this.lang])
 		this.reset = _ => this.error = {}
 		this.appendError = (method, errMsg) => {
 			this.error[method] = errMsg
@@ -57,7 +57,7 @@ class Self {
 			if (!valid) { continue }
 			for (const va of valid) {
 				if (isArray(va)) {
-					const vva = clone(va)
+					const vva = deepClone(va)
 					const vn = vva.shift()
 					if (dbValid) {
 						await dbValid(n, vn, vva)

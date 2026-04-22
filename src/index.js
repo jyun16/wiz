@@ -18,7 +18,7 @@ export function compare(v1, ope, v2) {
 	else if (ope == '!=') { return v1 != v2 }
 }
 
-export function clone(v) { return _.cloneDeep(v) }
+export function deepClone(v) { return _.cloneDeep(v) }
 export function isNull(v) {
 	if (v == null || v == undefined) { return true }
 	return false
