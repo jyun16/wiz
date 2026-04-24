@@ -1,4 +1,3 @@
-import { d } from './debug.js'
 import { isEmpty, isArray, array2obj, deepClone, setObjVal, sprintf } from './index.js'
 import validation from './validation.js'
 
@@ -77,7 +76,6 @@ class Self {
             this.v[vn](n, p[n], ...vva)
           }
           else {
-						d(va, this.v[va])
             this.v[va](n, p[n])
           }
         }
