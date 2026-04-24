@@ -1,5 +1,6 @@
 import util from 'util'
-import { isEmpty, isArray, array2map, clone, sprintf } from '../src/index.js'
+import { isEmpty, isArray, array2map, deepClone, sprintf } from '../src/index.js'
+import { d } from '../src/debug.js'
 import Test from '../src/test.js'
 import Validator from '../src/validator.js'
 
@@ -36,3 +37,34 @@ t.eq(v.error, {
 })
 v.customMessage('extra.unique', 'かぶった！')
 t.eq(v.message.extra.unique, 'かぶった！')
+
+const FORM = {
+	text: {
+		type: 'text',
+		validation: [
+			'required',
+		],
+	},
+	password: {
+		type: 'password',
+		validation: [
+			'required',
+			[ 'min', 4 ],
+		],
+	},
+	password_confirm: {
+		type: 'password',
+		validation: [
+			[ 'equal', 'password' ],
+		],
+	},
+}
+
+v.reset()
+
+v.formCheck(FORM, {
+	text: 'TEXT',
+	password: 'AIUEO',
+})
+
+d(v.error)

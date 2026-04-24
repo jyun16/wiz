@@ -49,33 +49,52 @@ class Self {
 			this.call(method, ...a)
 		}
 	}
+	formCheck(FORM, p, target, dbValid) {
+		this._check(FORM, p, target, dbValid)
+	}
 	async _check(FORM, p, target, dbValid) {
-		if (target) { target = isArray(target) ? array2map(target) : { [target]: true } }
-		for (const [ n, o ] of Object.entries(FORM)) {
-			if (target && !target[n]) { continue }
-			let valid = dbValid ? o.dbValidation : o.validation
-			if (!valid) { continue }
-			for (const va of valid) {
-				if (isArray(va)) {
-					const vva = deepClone(va)
-					const vn = vva.shift()
-					if (dbValid) {
-						await dbValid(n, vn, vva)
-					}
-					else {
-						if (vn == 'equal') { vva[0] = p[vva[0]] }
-						this.v[vn](n, p[n], ...vva)
-					}
-				}
-				else {
-					this.v[va](n, p[n])
-				}
-			}
-		}
-	}
-	check(FORM, p, target) {
-		this._check(FORM, p, target)
-	}
+    let isSkip = false
+    if (target) {
+      if (isArray(target) && target.length > 0 && target[0].startsWith('!')) {
+        isSkip = true
+        target = target.map(t => t.replace(/^!/, ''))
+      }
+      target = isArray(target) ? array2map(target) : { [target]: true }
+    }
+    for (const [ n, o ] of Object.entries(FORM)) {
+      if (target) {
+        if (!isSkip && !target[n]) continue
+        if (isSkip && target[n]) continue
+      }
+      if (o.validation) {
+        for (const va of o.validation) {
+          if (this.error[n]) break
+          if (isArray(va)) {
+            const vva = deepClone(va)
+            const vn = vva.shift()
+            if (vn == 'equal') vva[0] = p[vva[0]]
+            this.v[vn](n, p[n], ...vva)
+          }
+          else {
+            this.v[va](n, p[n])
+          }
+        }
+      }
+      if (dbValid && o.dbValidation && !this.error[n]) {
+        for (const va of o.dbValidation) {
+          if (this.error[n]) break
+          if (isArray(va)) {
+            const vva = deepClone(va)
+            const vn = vva.shift()
+            await dbValid(n, vn, vva)
+          }
+          else {
+            await dbValid(n, va, [])
+          }
+        }
+      }
+    }
+  }
 }
 Self.base_message = {
 	ja: {
@@ -110,25 +129,3 @@ Self.base_message = {
 }
 
 export default Self
-
-const FORM = {
-	text: {
-		type: 'text',
-		validation: [
-			'required',
-		],
-	},
-	password: {
-		type: 'password',
-		validation: [
-			'required',
-			[ 'min', 4 ],
-		],
-	},
-	password_confirm: {
-		type: 'password',
-		validation: [
-			[ 'equal', 'password' ],
-		],
-	},
-}
