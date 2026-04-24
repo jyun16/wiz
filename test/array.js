@@ -1,12 +1,12 @@
 import _ from 'lodash'
 import {
-	array2map, range, splitArray, arrayDiff, arrayMove, arrayable
+	array2obj, range, splitArray, arrayDiff, arrayMove, arrayable
 } from '../src/index.js'
 import Test from '../src/test.js'
 
 const t = new Test()
 
-t.eq(array2map(range(3)), { 0: true, 1: true, 2: true })
+t.eq(array2obj(range(3)), { 0: true, 1: true, 2: true })
 t.eq(splitArray(_.range(10), 3), [ [ 0, 3, 6, 9 ], [ 1, 4, 7 ], [ 2, 5, 8 ] ])
 
 t.eq(arrayDiff([ 1, 2, 3, 4 ], [ 1, 3, 5, 6 ]), { added: [ 5, 6 ], removed: [ 2, 4 ] })

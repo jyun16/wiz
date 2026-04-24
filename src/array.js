@@ -7,7 +7,7 @@ export function rand(...args) { return _.random(...args) }
 export function concat(a1, a2) { return _.concat(a1, a2) } 
 export function uniq(v) { return _.uniq(v) }
 
-export function array2map(a) {
+export function array2obj(a) {
 	const ret = {}
 	for (const v of a) { ret[v] = true }
 	return ret

@@ -1,4 +1,4 @@
-import { isEmpty, isArray, array2map, deepClone, setObjVal, sprintf } from './index.js'
+import { isEmpty, isArray, array2obj, deepClone, setObjVal, sprintf } from './index.js'
 import validation from './validation.js'
 
 class Self {
@@ -59,7 +59,7 @@ class Self {
         isSkip = true
         target = target.map(t => t.replace(/^!/, ''))
       }
-      target = isArray(target) ? array2map(target) : { [target]: true }
+      target = isArray(target) ? array2obj(target) : { [target]: true }
     }
     for (const [ n, o ] of Object.entries(FORM)) {
       if (target) {

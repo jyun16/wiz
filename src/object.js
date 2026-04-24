@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { equal, isString, isObject } from './index.js'
+import { equal, isString, isObject, array2obj } from './index.js'
 
 export function merge(v1, v2) { return _.merge({}, v1, v2) } 
 
@@ -65,6 +65,11 @@ export function sortObjectList(list, key) {
 		else if (a < b) { return 1 }
 		else { return 0 }
 	})
+}
+
+export function omitObj(obj, keys) {
+  const ks = isArray(keys) ? array2obj(keys) : { [keys]: true }
+  return Object.fromEntries(Object.entries(obj).filter(([k]) => !ks[k]))
 }
 
 function splitPath(key) {

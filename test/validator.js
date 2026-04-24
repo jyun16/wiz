@@ -1,5 +1,5 @@
 import util from 'util'
-import { isEmpty, isArray, array2map, deepClone, sprintf } from '../src/index.js'
+import { isEmpty, isArray, deepClone, sprintf } from '../src/index.js'
 import { d } from '../src/debug.js'
 import Test from '../src/test.js'
 import Validator from '../src/validator.js'

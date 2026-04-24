@@ -4,13 +4,13 @@
     <title>wiz test</title>
     <script type="module">
       import {
-      	d, json, array2map, randStr, hasObjKey, now,
+      	d, json, array2obj, randStr, hasObjKey, now,
       	validation, calendar, web
       } from '/js/wiz/index.min.js'
       // index.js
       d(json({ hoge: 'HOGE' }))
       // array.js
-      d(array2map([ 'a', 'b' ]))
+      d(array2obj([ 'a', 'b' ]))
       // string.js
       d(randStr())
       // object/js
