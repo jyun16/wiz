@@ -1,3 +1,4 @@
+import { d } from './debug.js'
 import { isEmpty, isArray, array2obj, deepClone, setObjVal, sprintf } from './index.js'
 import validation from './validation.js'
 
@@ -76,6 +77,7 @@ class Self {
             this.v[vn](n, p[n], ...vva)
           }
           else {
+						d(va, this.v[va])
             this.v[va](n, p[n])
           }
         }
@@ -102,6 +104,7 @@ Self.base_message = {
 		requiredChoice: '必ず選択してください',
 		equal: '値が一致しません',
 		compare: '範囲内で正しく入力してください',
+		integer: '数値で入力してください',
 		number: '数値で入力してください',
 		min: '最低 %s 文字入力してください',
 		max: '%s 文字以内で入力してください',
