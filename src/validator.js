@@ -4,12 +4,12 @@ import validation from './validation.js'
 class Self {
 	constructor(lang='ja') {
 		this.lang = lang
-		this.error = {}
-		this.hasError = _ => !isEmpty(this.error)
+		this.errors = {}
+		this.hasError = _ => !isEmpty(this.errors)
 		this.message = deepClone(Self.base_message[this.lang])
-		this.reset = _ => this.error = {}
+		this.reset = _ => this.errors = {}
 		this.appendError = (method, errMsg) => {
-			this.error[method] = errMsg
+			this.errors[method] = errMsg
 		}
 		this.appendExtraError = (method, name) => {
 			this.appendError(name, this.message.extra[method])
@@ -31,7 +31,7 @@ class Self {
 			let msg = (len < a.length) ? a[a.length - 1] : this.message[method]
 			a.shift()
 			msg = sprintf(msg, ...a)
-			this.error[name] = msg
+			this.errors[name] = msg
 		}
 	}
 	customMessage(method, msg) {
@@ -68,7 +68,7 @@ class Self {
       }
       if (o.validation) {
         for (const va of o.validation) {
-          if (this.error[n]) break
+          if (this.errors[n]) break
           if (isArray(va)) {
             const vva = deepClone(va)
             const vn = vva.shift()
@@ -80,9 +80,9 @@ class Self {
           }
         }
       }
-      if (dbValid && o.dbValidation && !this.error[n]) {
+      if (dbValid && o.dbValidation && !this.errors[n]) {
         for (const va of o.dbValidation) {
-          if (this.error[n]) break
+          if (this.errors[n]) break
           if (isArray(va)) {
             const vva = deepClone(va)
             const vn = vva.shift()

@@ -14,7 +14,7 @@ v.v.max('max', 'hoge', 2)
 const p = { text: 'HOGE', password: 'x' }
 v.appendExtraError('unique', 'uniq')
 t.true(v.hasError())
-t.eq(v.error, {
+t.eq(v.errors, {
 	req: '必ず入力してください',
 	eq1: '値が一致しません',
 	eq2: 'custom error message',
@@ -24,7 +24,7 @@ t.eq(v.error, {
 v.reset()
 v.customMessage('required', '空ですが？')
 v.v.required('custom_msg', '')
-t.eq(v.error, {
+t.eq(v.errors, {
 	custom_msg: '空ですが？'
 })
 v.reset()
@@ -32,7 +32,7 @@ v.custom('custom_checker', (v1, v2) => {
 	return v1 == v2
 }, 'カスタムチェックのエラー')
 v.v.custom_checker('custom_checker', 'xxx', 'yyy')
-t.eq(v.error, {
+t.eq(v.errors, {
 	custom_checker: 'カスタムチェックのエラー'
 })
 v.customMessage('extra.unique', 'かぶった！')
@@ -68,4 +68,4 @@ v.checkForm(FORM, {
 })
 t.eq({
 	password_confirm: '値が一致しません'
-}, v.error)
+}, v.errors)
