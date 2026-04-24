@@ -49,7 +49,7 @@ class Self {
 			this.call(method, ...a)
 		}
 	}
-	formCheck(FORM, p, target, dbValid) {
+	checkForm(FORM, p, target, dbValid) {
 		this._check(FORM, p, target, dbValid)
 	}
 	async _check(FORM, p, target, dbValid) {

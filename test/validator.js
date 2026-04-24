@@ -62,9 +62,10 @@ const FORM = {
 
 v.reset()
 
-v.formCheck(FORM, {
+v.checkForm(FORM, {
 	text: 'TEXT',
 	password: 'AIUEO',
 })
-
-d(v.error)
+t.eq({
+	password_confirm: '値が一致しません'
+}, v.error)
