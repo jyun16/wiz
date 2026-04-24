@@ -58,6 +58,11 @@ const FORM = {
 			[ 'equal', 'password' ],
 		],
 	},
+	checkbox: {
+		type: 'checkbox',
+		opts: { hoge: 'HOGE', fuga: 'FUGA', checkbox1: 'CHECKBOX 1', checkbox2: 'CHECKBOX 2' },
+		validation: [ 'required', [ 'min', 2 ] ],
+	},
 }
 
 v.reset()
@@ -65,7 +70,9 @@ v.reset()
 v.checkForm(FORM, {
 	text: 'TEXT',
 	password: 'AIUEO',
+	checkbox: [ 'hoge' ]
 })
 t.eq({
-	password_confirm: '値が一致しません'
+	password_confirm: '値が一致しません',
+	checkbox: '最低 2 個選択してください',
 }, v.errors)

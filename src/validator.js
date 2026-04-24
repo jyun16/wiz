@@ -6,14 +6,11 @@ class Self {
 		this.lang = lang
 		this.errors = {}
 		this.hasError = _ => !isEmpty(this.errors)
-		this.message = deepClone(Self.base_message[this.lang])
+		this.form = null
 		this.reset = _ => this.errors = {}
-		this.appendError = (method, errMsg) => {
-			this.errors[method] = errMsg
-		}
-		this.appendExtraError = (method, name) => {
-			this.appendError(name, this.message.extra[method])
-		}
+		this.message = deepClone(Self.base_message[this.lang])
+		this.appendError = (method, errMsg) => this.errors[method] = errMsg
+		this.appendExtraError = (method, name) => this.appendError(name, this.message.extra[method])
 		this.init()
 	}
 	init() {
@@ -26,9 +23,14 @@ class Self {
 	}
 	call(method, ...a) {
 		const name = a.shift()
+		const o = this.form ? this.form[name] : {}
+		const val = a[0]
 		if (!validation[method](...a)) {
 			const len = validation[method].length
 			let msg = (len < a.length) ? a[a.length - 1] : this.message[method]
+			if (typeof msg === 'object') {
+				msg = isArray(val) ? msg.array : msg.string
+			}
 			a.shift()
 			msg = sprintf(msg, ...a)
 			this.errors[name] = msg
@@ -53,48 +55,49 @@ class Self {
 		this._check(FORM, p, target, dbValid)
 	}
 	async _check(FORM, p, target, dbValid) {
-    let isSkip = false
-    if (target) {
-      if (isArray(target) && target.length > 0 && target[0].startsWith('!')) {
-        isSkip = true
-        target = target.map(t => t.replace(/^!/, ''))
-      }
-      target = isArray(target) ? array2obj(target) : { [target]: true }
-    }
-    for (const [ n, o ] of Object.entries(FORM)) {
-      if (target) {
-        if (!isSkip && !target[n]) continue
-        if (isSkip && target[n]) continue
-      }
-      if (o.validation) {
-        for (const va of o.validation) {
-          if (this.errors[n]) break
-          if (isArray(va)) {
-            const vva = deepClone(va)
-            const vn = vva.shift()
-            if (vn == 'equal') vva[0] = p[vva[0]]
-            this.v[vn](n, p[n], ...vva)
-          }
-          else {
-            this.v[va](n, p[n])
-          }
-        }
-      }
-      if (dbValid && o.dbValidation && !this.errors[n]) {
-        for (const va of o.dbValidation) {
-          if (this.errors[n]) break
-          if (isArray(va)) {
-            const vva = deepClone(va)
-            const vn = vva.shift()
-            await dbValid(n, vn, vva)
-          }
-          else {
-            await dbValid(n, va, [])
-          }
-        }
-      }
-    }
-  }
+		this.form = FORM
+		let isSkip = false
+		if (target) {
+			if (isArray(target) && target.length > 0 && target[0].startsWith('!')) {
+				isSkip = true
+				target = target.map(t => t.replace(/^!/, ''))
+			}
+			target = isArray(target) ? array2obj(target) : { [target]: true }
+		}
+		for (const [ n, o ] of Object.entries(FORM)) {
+			if (target) {
+				if (!isSkip && !target[n]) continue
+				if (isSkip && target[n]) continue
+			}
+			if (o.validation) {
+				for (const va of o.validation) {
+					if (this.errors[n]) break
+					if (isArray(va)) {
+						const vva = deepClone(va)
+						const vn = vva.shift()
+						if (vn == 'equal') vva[0] = p[vva[0]]
+						this.v[vn](n, p[n], ...vva)
+					}
+					else {
+						this.v[va](n, p[n])
+					}
+				}
+			}
+			if (dbValid && o.dbValidation && !this.errors[n]) {
+				for (const va of o.dbValidation) {
+					if (this.errors[n]) break
+					if (isArray(va)) {
+						const vva = deepClone(va)
+						const vn = vva.shift()
+						await dbValid(n, vn, vva)
+					}
+					else {
+						await dbValid(n, va, [])
+					}
+				}
+			}
+		}
+	}
 }
 Self.base_message = {
 	ja: {
@@ -104,8 +107,14 @@ Self.base_message = {
 		compare: '範囲内で正しく入力してください',
 		integer: '数値で入力してください',
 		number: '数値で入力してください',
-		min: '最低 %s 文字入力してください',
-		max: '%s 文字以内で入力してください',
+		min: {
+			string: '最低 %s 文字入力してください',
+			array: '最低 %s 個選択してください',
+		},
+		max: {
+			string: '%s 文字以内で入力してください',
+			array: '最大 %s 個まで選択してください',
+		},
 		email: '正しいメールアドレスを入力してください',
 		zipcode: '正しい郵便番号を入力してください',
 		phone: '正しい電話番号を入力してください',
