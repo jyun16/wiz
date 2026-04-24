@@ -43,10 +43,10 @@ const bsr = cb => {
 	cb()
 }
 
-const js_dir = [ 'src/index.js' ]
+const js_dir = [ 'src/**/*.js' ]
 const jsw = () => { watch(js_dir, series(jsc, bsr)) }
 const jsc = () => {
-	return src(js_dir)
+	return src('src/index.js')
 		.pipe(plumber())	
 		.pipe(esbuild({
 			bundle: true,
