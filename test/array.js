@@ -1,5 +1,5 @@
-import * as arrayUtils from '../src/array.js'
-Object.assign(globalThis, arrayUtils)
+import * as utils from '../src/array.js'
+Object.assign(globalThis, utils)
 import Test from '../src/test.js'
 
 const t = new Test()

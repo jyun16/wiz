@@ -1,5 +1,5 @@
-import * as objUtils from '../src/object.js'
-Object.assign(globalThis, objUtils)
+import * as utils from '../src/object.js'
+Object.assign(globalThis, utils)
 import Test from '../src/test.js'
 
 const t = new Test()

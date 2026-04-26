@@ -80,6 +80,15 @@ export function sleep(sec) {
 	})
 }
 
+export function trimDir(path, cd = '..') {
+	const l = cd.match(/\./g).length
+	for (let i = 1; i < l; i++) {
+		path = path.replace(/[^\/]+$/, '')
+		if (path != '/') { path = path.replace(/\/$/, '') }
+	}
+	return path
+}
+
 export * from './array.js'
 export * from './string.js'
 export * from './object.js'
