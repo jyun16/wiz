@@ -1,8 +1,6 @@
 import { p, pr, cl } from '../src/debug.js'
-import {
-	range, includes, isNull, isEmpty, expandRange,
-	codePoint2Char, char2CodePoint, randStrTough, removeIndent, tab2sp
-} from '../src/index.js'
+import * as utils from '../src/index.js'
+Object.assign(globalThis, utils)
 import Test from '../src/test.js'
 
 const isEmptyTest = t => {

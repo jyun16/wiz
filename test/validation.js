@@ -1,4 +1,4 @@
-import { trim, equal, compare, isEmpty } from '../src/index.js'
+import * as utils from '../src/index.js'
 import Test from '../src/test.js'
 import valid from '../src/validation.js'
 

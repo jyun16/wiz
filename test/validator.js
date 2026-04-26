@@ -1,5 +1,6 @@
 import util from 'util'
-import { isEmpty, isArray, deepClone, sprintf } from '../src/index.js'
+import * as utils from '../src/index.js'
+Object.assign(globalThis, utils)
 import { d } from '../src/debug.js'
 import Test from '../src/test.js'
 import Validator from '../src/validator.js'

@@ -1,6 +1,5 @@
-import {
-	toPascal, comma, escape4regexp, wildMatch, omit, toCamel
-} from '../src/string.js'
+import * as utils from '../src/string.js'
+Object.assign(globalThis, utils)
 import Test from '../src/test.js'
 
 const t = new Test()

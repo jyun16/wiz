@@ -1,5 +1,5 @@
-import { expandRange } from '../src/index.js'
-import { isPublicHoliday, isHoliday, getCalendarDays } from '../src/calendar.js'
+import * as utils from '../src/calendar.js'
+Object.assign(globalThis, utils)
 import Test from '../src/test.js'
 
 const t = new Test()
