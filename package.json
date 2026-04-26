@@ -4,7 +4,7 @@
 	"description": "Benridayo!",
 	"main": "index.js",
 	"type": "module",
-	"author": "Jyun16",
+	"author": "jyun16",
 	"license": "Custom 'Zero-Liability & High-Cost' License",
 	"exports": {
 		".": "./src/index.js",

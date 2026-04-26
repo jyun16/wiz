@@ -1,16 +1,33 @@
-import _ from 'lodash'
-import { range } from './index.js'
-
-export function removeArray(a, v) { return _.pull(a, v) }
-export function choice(a) { return _.sample(a) }
-export function rand(...args) { return _.random(...args) }
-export function concat(a1, a2) { return _.concat(a1, a2) } 
-export function uniq(v) { return _.uniq(v) }
-
 export function array2obj(a) {
-	const ret = {}
-	for (const v of a) { ret[v] = true }
-	return ret
+	return Object.fromEntries(a.map(v => [v, true]))
+}
+
+export function arrayUniq(v) {
+	return [...new Set(v)]
+}
+
+export function arrayConcat(a1, a2) {
+	return [...a1, ...a2]
+}
+
+export function arrayRange(start, end, step = 1) {
+	return Array.from({ length: Math.floor((end - start) / step) + 1 }, (_, i) => start + i * step)
+}
+
+export function arrayChoice(a) {
+  return a[Math.floor(Math.random() * a.length)]
+}
+
+export function arrayPick(a, key) {
+	return a.map(v => v[key])
+}
+
+export function arrayTrim(a) {
+	return a.map(v => v.trim())
+}
+
+export function arrayKeyBy(a, key) {
+	return Object.fromEntries(a.map(v => [v[key], v]))
 }
 
 export function arrayMove(a, from, to) {
@@ -18,39 +35,56 @@ export function arrayMove(a, from, to) {
 	return a
 }
 
-export function reduceArray(a, offset, limit) {
+export function arrayRemove(a, v) {
+	const i = a.indexOf(v)
+	if (i !== -1) a.splice(i, 1)
+	return a
+}
+
+export function arrayWrap(v) {
+	return Array.isArray(v) ? v : [v]
+}
+
+export function arraySlice(a, offset, limit) {
 	return a.slice(offset, offset + limit)
 }
 
-export function splitArray(arr, num) {
-	const ret = []
-	let tmp = []
-	for (let i = 0; i < num; i++) { ret.push([]) }
-	for (let i = 0; i < arr.length; i++) {
-		ret[i % num].push(arr[i])
+export function arrayChunk(a, size) {
+	return Array.from({ length: Math.ceil(a.length / size) }, (_, i) => a.slice(i * size, i * size + size))
+}
+
+export function arraySplit(a, fn) {
+	const ret = [[]]
+	for (const v of a) {
+		if (fn(v)) {
+			ret.push([])
+			continue
+		}
+		ret[ret.length - 1].push(v)
 	}
 	return ret
 }
 
-export function trimAll(a) {
-	a.map(v => v.trim())
+export function arrayDistribute(a, num) {
+	const ret = Array.from({ length: num }, () => [])
+	a.forEach((v, i) => ret[i % num].push(v))
+	return ret
 }
 
 export function arrayDiff(a1, a2) {
-	const added = {}
-	const removed = {}
-	for (const v of a1) { removed[v] = v }
-	for (const v of a2) { added[v] = v }
-	for (const v of a1) { delete added[v] }
-	for (const v of a2) { delete removed[v] }
-	return { added: Object.values(added), removed: Object.values(removed) }
+	const s1 = new Set(a1)
+	const s2 = new Set(a2)
+	return {
+		added: a2.filter(v => !s1.has(v)),
+		removed: a1.filter(v => !s2.has(v))
+	}
 }
 
 export function arrayable(that) {
 	return new Proxy(that, {
 		get(self, prop) {
 			if (!isNaN(prop)) return self.list[prop]
-			else if (prop == 'length') return self.list.length
+			if (prop === 'length') return self.list.length
 			return self[prop]
 		},
 		set(self, prop, value) {

@@ -1,4 +1,4 @@
-import { isEmpty, isArray, isObject, isString, split, getObjVal, setObjVal, hasObjKey, deleteObjVal } from './index.js'
+import { isEmpty, isArray, isObject, isString, split, objGet, objSet, objHas, objDelete } from './index.js'
 
 /*
 
@@ -47,7 +47,7 @@ const Self = class {
 		else if (isArray(conf)) {
 			this.conf = {}
 			for (const key of conf) {
-				setObjVal(this.conf, key, true)
+				objSet(this.conf, key, true)
 			}
 		}
 		else if (isString(conf)) {
@@ -58,28 +58,28 @@ const Self = class {
 		const akey = split(key, '.')
 		const leaf = akey.pop()
 		if (leaf == '@all') {
-			const map = getObjVal(this.conf, akey.join('.'))
+			const map = objGet(this.conf, akey.join('.'))
 			for (const k in map) { delete map[k] }
 			if (!map) {
-				setObjVal(this.conf, akey.join('.') + '.@all', true)
+				objSet(this.conf, akey.join('.') + '.@all', true)
 			}
 			else {
 				map['@all'] = true
 			}
 			return
 		}
-		else if (!/^\~/.test(leaf) && hasObjKey(this.conf, akey.join('.') + '.@all')) {
-			deleteObjVal(this.conf, akey.join('.') + '.@all')
+		else if (!/^\~/.test(leaf) && objHas(this.conf, akey.join('.') + '.@all')) {
+			objDelete(this.conf, akey.join('.') + '.@all')
 		}
-		setObjVal(this.conf, key, true)
+		objSet(this.conf, key, true)
 	}
 	remove(key) {
-		deleteObjVal(this.conf, key)
+		objDelete(this.conf, key)
 		const akey = split(key, '.')
 		akey.pop()
 		const pkey = akey.join('.')
-		if (isEmpty(getObjVal(this.conf, pkey))) {
-			deleteObjVal(this.conf, pkey)
+		if (isEmpty(objGet(this.conf, pkey))) {
+			objDelete(this.conf, pkey)
 		}
 	}
 	_has(key) {
@@ -88,14 +88,14 @@ const Self = class {
 		let pk = ''
 		for (const k of key) {
 			pk += k
-			if (hasObjKey(this.conf, `${pk}.@all`)) {
+			if (objHas(this.conf, `${pk}.@all`)) {
 				ret = true
 				break
 			}
 			pk += '.'
 		}
 		const leaf = key.pop()
-		const map = getObjVal(this.conf, key)
+		const map = objGet(this.conf, key)
 		if (map) {
 			if (map[`\~${leaf}`]) { return false }
 			else if (map[leaf]) { return true }

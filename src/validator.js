@@ -1,4 +1,4 @@
-import { isEmpty, isArray, array2obj, deepClone, setObjVal, sprintf } from './index.js'
+import { isEmpty, isArray, array2obj, deepClone, objSet, sprintf } from './index.js'
 import validation from './validation.js'
 
 class Self {
@@ -38,7 +38,7 @@ class Self {
 	}
 	customMessage(method, msg) {
 		if (method.includes('.')) {
-			setObjVal(this.message, method, msg)
+			objSet(this.message, method, msg)
 		}
 		else {
 			this.message[method] = msg

@@ -1,4 +1,3 @@
-import lodash from 'lodash'
 import sanitizeHtml from 'sanitize-html'
 import { includes } from '../index.js'
 

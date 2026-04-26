@@ -3,6 +3,7 @@ import _ from 'lodash'
 export const d = (...args) => console.dir(args.length === 1 ? args[0] : args, { depth: null })
 
 export function json(x) { return JSON.stringify(x) }
+
 export function parseJson(x) { return JSON.parse(x) }
 
 export function equal(v1, v2) { return _.isEqual(v1, v2) }
@@ -18,24 +19,37 @@ export function compare(v1, ope, v2) {
 	else if (ope == '!=') { return v1 != v2 }
 }
 
+export function rand(min, max) {
+	return Math.floor(Math.random() * (max - min + 1) + min)
+}
+
+export function range(...args) { return _.range(...args) }
+
 export function deepClone(v) { return _.cloneDeep(v) }
+
 export function isNull(v) {
 	if (v == null || v == undefined) { return true }
 	return false
 }
+
 export function isEmpty(v) {
 	if (v == null) return true
 	if (typeof v == 'string' || Array.isArray(v)) return v.length == 0
 	if (typeof v == 'object') return Object.keys(v).length == 0
 	return false
 }
+
 export function isString(v) { return _.isString(v) }
+
 export function isArray(v) { return _.isArray(v) }
+
 export function isObject(v) { return _.isPlainObject(v) }
+
 export function isInstance(v) { return(!!v) && v.constructor === Object }
+
 export function isMap(v) { return _.isMap(v) }
+
 export function includes(t, v, i) { return _.includes(t, v, i) }
-export function range(...args) { return _.range(...args) }
 
 export function expandRange(r) {
 	return r.split(',').flatMap(s => {

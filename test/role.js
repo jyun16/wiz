@@ -1,4 +1,3 @@
-import { isEmpty, isArray, isObject, isString, split, getObjVal, setObjVal, hasObjKey, deleteObjVal } from '../src/index.js'
 import Test from '../src/test.js'
 import Role from '../src/role.js'
 

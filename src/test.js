@@ -1,14 +1,22 @@
+import path from 'path'
 import { p, caller } from './debug.js'
 
 const Self = class {
 
-	constructor(name = 'Test') {
+	constructor(name = '') {
+		if (!name) {
+			const c = caller(1).split(':')
+			name = path.basename(c[1], '.js')
+		}
 		this.name = name
 		this.count = 0
 		this.ok = 0
 		this.ng = 0
 		if (Self.noPrint) return
 		p('^B[%s]', name)
+		process.on('exit', () => {
+      this.result()
+    })
 	}
 	strip(s) {
 		return s.replace(/^\s*$/gm, '').replace(/\s+/g, '').trim()
@@ -17,6 +25,7 @@ const Self = class {
 		if (this.count > 0) {
 			if (this.ng > 0) {
 				p('^RFAILED ^W%s/%s %s%%', this.ok, this.count, (this.ok/this.count * 100).toFixed(2))
+				if (this.ng > 0) process.exit(1)
 			}
 			else {
 				p('^GSUCCEEDED ^W%s/%s', this.ok, this.count)
