@@ -158,15 +158,15 @@ class Self {
 			const o = conf[n]
 			if (!o.valids) continue
 			if (target && !target?.has(n)) continue
-			for (const va of o.valids) {
+			for (let vn of o.valids) {
 				if (this.errors[n]) break
-				if (isArray(va)) {
-					const vva = deepClone(va)
-					const vn = vva.shift()
-					if (vn == 'equal') vva[0] = p[vva[0]]
-					this.v.call(vn, n, p[n], ...vva)
+				if (isArray(vn)) {
+					const va = deepClone(vn)
+					vn = va.shift()
+					if (vn == 'equal') va[0] = p[va[0]]
+					this.v.call(vn, n, p[n], ...va)
 				}
-				else this.v.call(va, n, p[n])
+				else this.v.call(vn, n, p[n])
 			}
 		}
 	}
@@ -189,9 +189,6 @@ class Self {
 			if (this.errors[n]) continue
 			if (target && !target?.has(n)) continue
 			for (let va of o.dbValids) {
-
-
-
 				// if (isArray(va)) {
 				// 	const vva = deepClone(va)
 				// 	const vn = vva.shift()
