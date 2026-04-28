@@ -52,7 +52,7 @@ export function isMap(v) { return _.isMap(v) }
 
 export function includes(t, v, i) { return _.includes(t, v, i) }
 
-export function instanceName(o) { o?.constructor?.name || typeof o }
+export function instanceName(o) { return o?.constructor?.name || typeof o }
 
 export function expandRange(r) {
 	return r.split(',').flatMap(s => {

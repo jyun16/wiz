@@ -1,4 +1,4 @@
-import { isEmpty, isString, isArray, instanceName, equal, uc, hash, includes, Validator } from '../index.js'
+import { dd, isEmpty, isString, isArray, instanceName, equal, uc, hash, includes, Validator } from '../index.js'
 import { escapeHtml, query2where } from './utils.js'
 
 const MULTI = new Set([ 'checkbox', 'rich-select' ])
@@ -139,7 +139,6 @@ class Self {
 	}
 	validation(...target) {
 		dd(instanceName(target[0]))
-
 		// this.v.checkForm(this.conf, this.p, target)
 	}
 	async _check(FORM, p, target, db) {
