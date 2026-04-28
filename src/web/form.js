@@ -1,4 +1,4 @@
-import { dd, isEmpty, isString, isArray, instanceName, equal, uc, hash, includes, Validator } from '../index.js'
+import { d, dd, isEmpty, isString, isArray, instanceName, deepClone, equal, uc, hash, includes, Validator } from '../index.js'
 import { escapeHtml, query2where } from './utils.js'
 
 const MULTI = new Set([ 'checkbox', 'rich-select' ])
@@ -137,55 +137,71 @@ class Self {
 		}
 		return value
 	}
-	validation(...target) {
-		dd(instanceName(target[0]))
-		// this.v.checkForm(this.conf, this.p, target)
+	hasDBValids() {
+		const conf = this.conf
+		for (const n in conf) {
+			const o = conf[n]
+			if (o.dbValids) return true
+		}
+		return false
 	}
-	async _check(FORM, p, target, db) {
+	_target(target) {
 		if (isEmpty(target)) target = null
 		if (target && isArray(target)) target = new Set(target)
-		for (const [ n, o ] of Object.entries(FORM)) {
-			if (target) {
-				if (!target.has(n)) continue
-			}
-			if (o.valids) {
-				for (const va of o.valids) {
-					if (this.errors[n]) break
-					if (isArray(va)) {
-						const vva = deepClone(va)
-						const vn = vva.shift()
-						if (vn == 'equal') vva[0] = p[vva[0]]
-						this.call(vn, n, p[n], ...vva)
-					}
-					else {
-						this.call(va, n, p[n])
-					}
+		return target
+	}
+	validation(...target) {
+		const conf = this.conf
+		const p = this.p
+		target = this._target(target)
+		for (const n in conf) {
+			const o = conf[n]
+			if (!o.valids) continue
+			if (target && !target?.has(n)) continue
+			for (const va of o.valids) {
+				if (this.errors[n]) break
+				if (isArray(va)) {
+					const vva = deepClone(va)
+					const vn = vva.shift()
+					if (vn == 'equal') vva[0] = p[vva[0]]
+					this.v.call(vn, n, p[n], ...vva)
 				}
-			}
-			if (db && o.dbValidation && !this.errors[n]) {
-				for (const va of o.dbValidation) {
-					if (this.errors[n]) break
-					if (isArray(va)) {
-						const vva = deepClone(va)
-						const vn = vva.shift()
-						// await db(n, vn, vva)
-					}
-					else {
-						// await db(n, va, [])
-					}
-				}
+				else this.v.call(va, n, p[n])
 			}
 		}
 	}
-	async dbValidation(conn, target) {
-		await this.v._check(this.conf, this.p, target, async (n, method, args) => {
-			if (method == 'unique') {
-				const rows = await conn.query(`SELECT COUNT(*) AS count FROM ${args[0]} WHERE ${n}=?`, [ this.p[n] ])
-				if (rows[0].count != 0) {
-					this.v.appendExtraError(method, n)
-				}
+	async _dbValidation(db, n, p, vn, va) {
+		if (method == 'unique') {
+			// const rows = await db.query(`SELECT COUNT(*) AS count FROM ${va[0]} WHERE ${n}=?`, [ this.v ])
+			// if (rows[0].count != 0) {
+			// 	this.v.appendExtraError(method, n)
+			// }
+		}
+	}
+	async dbValidation(db, ...target) {
+		if (!db) return
+		const conf = this.conf
+		const p = this.p
+		target = this._target(target)
+		for (const n in conf) {
+			const o = conf[n]
+			if (!o.dbValids) continue
+			if (this.errors[n]) continue
+			if (target && !target?.has(n)) continue
+			for (let va of o.dbValids) {
+
+
+
+				// if (isArray(va)) {
+				// 	const vva = deepClone(va)
+				// 	const vn = vva.shift()
+				// 	await this._dbValidation(db, n, p[n], vn, vva)
+				// }
+				// else {
+				// 	await this._dbValidation(db, n, p[n], vn, [])
+				// }
 			}
-		})
+		}
 	}
 	hasError() {
 		return this.v.hasError()
