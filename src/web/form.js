@@ -160,22 +160,22 @@ class Self {
 			if (target && !target?.has(n)) continue
 			for (let vn of o.valids) {
 				if (this.errors[n]) break
+				let va = []
 				if (isArray(vn)) {
-					const va = deepClone(vn)
+					va = deepClone(vn)
 					vn = va.shift()
 					if (vn == 'equal') va[0] = p[va[0]]
-					this.v.call(vn, n, p[n], ...va)
 				}
-				else this.v.call(vn, n, p[n])
+				this.v.call(vn, n, p[n], ...va)
 			}
 		}
 	}
-	async _dbValidation(db, n, p, vn, va) {
-		if (method == 'unique') {
-			// const rows = await db.query(`SELECT COUNT(*) AS count FROM ${va[0]} WHERE ${n}=?`, [ this.v ])
-			// if (rows[0].count != 0) {
-			// 	this.v.appendExtraError(method, n)
-			// }
+	async _dbValidation(db, vn, n, p, ...va) {
+		if (vn == 'unique') {
+			const rows = await db.query(`SELECT COUNT(*) AS count FROM ${va[0]} WHERE ${n}=?`, [ p ])
+			if (rows[0].count != 0) {
+				this.v.appendExtraError(vn, n)
+			}
 		}
 	}
 	async dbValidation(db, ...target) {
@@ -188,15 +188,13 @@ class Self {
 			if (!o.dbValids) continue
 			if (this.errors[n]) continue
 			if (target && !target?.has(n)) continue
-			for (let va of o.dbValids) {
-				// if (isArray(va)) {
-				// 	const vva = deepClone(va)
-				// 	const vn = vva.shift()
-				// 	await this._dbValidation(db, n, p[n], vn, vva)
-				// }
-				// else {
-				// 	await this._dbValidation(db, n, p[n], vn, [])
-				// }
+			for (let vn of o.dbValids) {
+				let va = []
+				if (isArray(va)) {
+					va = deepClone(vn)
+					vn = va.shift()
+				}
+				await this._dbValidation(db, vn, n, p[n], ...va)
 			}
 		}
 	}
