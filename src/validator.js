@@ -1,4 +1,4 @@
-import { isEmpty, isArray, array2obj, deepClone, objSet, sprintf } from './index.js'
+import { dd, isEmpty, isArray, array2obj, deepClone, objSet, sprintf } from './index.js'
 import validation from './validation.js'
 
 class Self {
@@ -6,7 +6,6 @@ class Self {
 		this.lang = lang
 		this.errors = {}
 		this.hasError = _ => !isEmpty(this.errors)
-		this.form = null
 		this.reset = _ => this.errors = {}
 		this.message = deepClone(Self.base_message[this.lang])
 		this.appendError = (method, errMsg) => this.errors[method] = errMsg
@@ -23,7 +22,6 @@ class Self {
 	}
 	call(method, ...a) {
 		const name = a.shift()
-		const o = this.form ? this.form[name] : {}
 		const val = a[0]
 		if (!validation[method](...a)) {
 			const len = validation[method].length
@@ -55,31 +53,23 @@ class Self {
 		this._check(FORM, p, target, dbValid)
 	}
 	async _check(FORM, p, target, dbValid) {
-		this.form = FORM
-		let isSkip = false
-		if (target) {
-			if (isArray(target) && target.length > 0 && target[0].startsWith('!')) {
-				isSkip = true
-				target = target.map(t => t.replace(/^!/, ''))
-			}
-			target = isArray(target) ? array2obj(target) : { [target]: true }
-		}
+		if (isEmpty(target)) target = null
+		if (target && isArray(target)) target = new Set(target)
 		for (const [ n, o ] of Object.entries(FORM)) {
 			if (target) {
-				if (!isSkip && !target[n]) continue
-				if (isSkip && target[n]) continue
+				if (!target.has(n)) continue
 			}
-			if (o.validation) {
-				for (const va of o.validation) {
+			if (o.valids) {
+				for (const va of o.valids) {
 					if (this.errors[n]) break
 					if (isArray(va)) {
 						const vva = deepClone(va)
 						const vn = vva.shift()
 						if (vn == 'equal') vva[0] = p[vva[0]]
-						this.v[vn](n, p[n], ...vva)
+						this.call(vn, n, p[n], ...vva)
 					}
 					else {
-						this.v[va](n, p[n])
+						this.call(va, n, p[n])
 					}
 				}
 			}

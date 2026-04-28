@@ -1,108 +1,99 @@
 import { isEmpty, isString, isArray, equal, uc, hash, includes, Validator } from '../index.js'
 import { escapeHtml, query2where } from './utils.js'
 
+import { dd } from 'wiz/debug'
+
+const MULTI = new Set([ 'checkbox', 'rich-select' ])
+
 class Self {
-	constructor(conf={}, param={}, opts={}) {
+	constructor(conf={}, p={}, opts={}) {
 		this.conf = conf
-		this.param = param
-		this.error = {}
-		this.validator = new Validator(this.lang)
+		this.p = p
+		this.v = new Validator(this.lang)
 		if (opts.customErrorMessage) {
 			for (const method in opts.customErrorMessage) {
 				this.customErrorMessage(method, opts.customErrorMessage[method])
 			}
 		}
 	}
-	set(param) {
-		this.param = param
-		this.validator.reset()
-		this.error = {}
+	set(p) {
+		this.p = p
+		this.v.reset()
 	}
-	reset() {
-		this.set({})
-	}
-	val(...args) {
-		return this.t.val(...args)
-	}
+	reset() { this.set({}) }
+	val(...args) { return this.t.val(...args) }
 	mode(mode) {
-		for (const name in this.conf) {
-			const conf = this.conf[name]
-			if (conf.hide && includes(conf.hide, mode)) {
-				delete this.conf[name]
+		for (const n in this.conf) {
+			const o = this.conf[n]
+			if (o.hide && includes(o.hide, mode)) {
+				delete this.o[n]
 			}
-			else if (conf.show && !includes(conf.show, mode)) {
-				delete this.conf[name]
+			else if (o.show && !includes(o.show, mode)) {
+				delete this.conf[n]
 			}
 		}
 	}
 	toDB() {
 		const ret = {}
-		const d = this.param
-		for (const name in d) {
-			const conf = this.conf[name]
-			if (!conf) { continue }
-			if (conf.ignoreDB) { continue }
-			if (this.t.isMulti(name)) {
-				if (isString(d[name])) {
-					d[name] = JSON.parse(d[name])
-				}
-				ret[name] = `,${d[name].join(',')},`
+		const d = this.p
+		for (const n in d) {
+			const o = this.conf[n]
+			if (!o || o.skipDB) continue
+			if (MULTI.has(o.type)) {
+				if (isString(d[n])) { d[n] = JSON.parse(d[n]) }
+				ret[n] = `,${d[n].join(',')},`
 			}
 			else {
-				if (conf.hash) {
-					ret[name] = hash(d[name], conf.hash)
-				}
-				else {
-					ret[name] = d[name]
-				}
+				if (o.hash) ret[n] = hash(d[n], o.hash)
+				else ret[n] = d[n]
 			}
 		}
 		return ret
 	}
 	fromDB(d, label=false) {
 		const ret = {}
-		for (const name in d) {
-			if (name == 'id') { ret.id = d.id; continue }
-			if (!this.conf[name]) { continue }
-			const conf = this.conf[name]
-			const type = conf.type
+		for (const n in d) {
+			if (n == 'id') { ret.id = d.id; continue }
+			if (!this.conf[n]) { continue }
+			const o = this.conf[n]
+			const type = o.type
 			if (type == 'textarea') {
-				ret[name] = d[name]
+				ret[n] = d[n]
 			}
 			else {
-				if (this.t.isMulti(name)) {
-					ret[name] = d[name]?.substring(1, d[name].length - 1).split(',').map(x => x.toString())
+				if (this.t.isMulti(n)) {
+					ret[n] = d[n]?.substring(1, d[n].length - 1).split(',').map(x => x.toString())
 				}
-				else { ret[name] = d[name]?.toString() }
+				else { ret[n] = d[n]?.toString() }
 				if (label && (type == 'select' || type == 'radio' || type == 'checkbox')) {
-					ret[name] = this.labeledValue(name, ret[name])
+					ret[n] = this.labeledValue(n, ret[n])
 				}
 			}
 		}
-		this.param = ret
+		this.p = ret
 		return ret
 	}
 	detailFromDB(d, label=true) {
 		const ret = {}
-		for (const name in d) {
-			if (name == 'id') { ret.id = d.id; continue }
-			if (!this.conf[name]) { continue }
-			const conf = this.conf[name]
-			const type = conf.type
+		for (const n in d) {
+			if (n == 'id') { ret.id = d.id; continue }
+			if (!this.conf[n]) { continue }
+			const o = this.conf[n]
+			const type = o.type
 			if (type == 'textarea') {
-				ret[name] = d[name] != null ? escapeHtml(d[name], { br: true }).replace(/\r?\n/g, '<br>') : ''
+				ret[n] = d[n] != null ? escapeHtml(d[n], { br: true }).replace(/\r?\n/g, '<br>') : ''
 			}
 			else {
-				if (this.t.isMulti(name)) {
-					ret[name] = d[name].substring(1, d[name].length - 1).split(',').map(x => x.toString())
+				if (this.t.isMulti(n)) {
+					ret[n] = d[n].substring(1, d[n].length - 1).split(',').map(x => x.toString())
 				}
-				else { ret[name] = d[name]?.toString() }
+				else { ret[n] = d[n]?.toString() }
 				if (label && (type == 'select' || type == 'radio' || type == 'checkbox')) {
-					ret[name] = this.labeledValue(name, ret[name])
+					ret[n] = this.labeledValue(n, ret[n])
 				}
 			}
 		}
-		this.param = ret
+		this.p = ret
 		return ret
 	}
 	listFromDB(list, label=true) {
@@ -120,12 +111,12 @@ class Self {
 		}
 		return ret
 	}
-	label(name) {
-		const conf = this.conf[name]
-		return conf.label ? conf.label : uc(name)
+	label(n) {
+		const conf = this.conf[n]
+		return o.label ? o.label : uc(n)
 	}
-	optionLabel(name, value) {
-		const o = this.conf[name].option
+	optionLabel(n, value) {
+		const o = this.conf[n].option
 		for (let i = 0; i < o.length; i+=2) {
 			if (equal(o[i], parseInt(value))) {
 				return o[i + 1]
@@ -135,45 +126,46 @@ class Self {
 	skip4html(type) {
 		return type == 'db'
 	}
-	labeledValue(name, value) {
-		if (this.t.isMulti(name)) {
+	labeledValue(n, value) {
+		if (this.t.isMulti(n)) {
 			if (!isArray(value)) {
 				if (/^\,/.test(value)) { value = value.substring(1, value.length - 1) }
 				value = value.split(',')
 			}
-			return value.map(v => this.optionLabel(name, v))
+			return value.map(v => this.optionLabel(n, v))
 		}
 		else {
-			return this.optionLabel(name, value)
+			return this.optionLabel(n, value)
 		}
 		return value
 	}
-	validation(target) {
-		this.validator.check(this.conf, this.param, target)
-		this.error = this.validator.hasError() ? this.validator.error : {}
+	validation(...target) {
+		this.v.checkForm(this.conf, this.p, target)
 	}
 	async dbValidation(conn, target) {
-		await this.validator._check(this.conf, this.param, target, async (name, method, args) => {
+		await this.v._check(this.conf, this.p, target, async (n, method, args) => {
 			if (method == 'unique') {
-				const rows = await conn.query(`SELECT COUNT(*) AS count FROM ${args[0]} WHERE ${name}=?`, [ this.param[name] ])
+				const rows = await conn.query(`SELECT COUNT(*) AS count FROM ${args[0]} WHERE ${n}=?`, [ this.p[n] ])
 				if (rows[0].count != 0) {
-					this.validator.appendExtraError(method, name)
+					this.v.appendExtraError(method, n)
 				}
 			}
 		})
-		this.error = this.validator.hasError() ? this.validator.error : {}
 	}
 	hasError() {
-		return !isEmpty(this.error)
+		return this.v.hasError()
 	}
-	setError(name, errMsg) {
-		this.validator.appendError(name, errMsg)
+	errors() {
+		return this.v.errors
+	}
+	setError(n, errMsg) {
+		this.v.appendError(n, errMsg)
 	}
 	customErrorMessage(method, msg) {
-		this.validator.customMessage(method, msg)
+		this.v.customMessage(method, msg)
 	}
 	customValidation(method, func, msg) {
-		this.validator.custom(method, func, msg)
+		this.v.custom(method, func, msg)
 	}
 	query2where(q, limit=10) { return query2where(q, limit) }
 }

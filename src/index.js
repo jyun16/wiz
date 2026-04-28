@@ -1,6 +1,7 @@
 import _ from 'lodash'
 
 export const d = (...args) => console.dir(args.length === 1 ? args[0] : args, { depth: null })
+export const dd = (...args) => console.dir(args.length === 1 ? args[0] : args, { depth: null })
 
 export function json(x) { return JSON.stringify(x) }
 
