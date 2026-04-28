@@ -1,7 +1,5 @@
-import { isEmpty, isString, isArray, equal, uc, hash, includes, Validator } from '../index.js'
+import { isEmpty, isString, isArray, instanceName, equal, uc, hash, includes, Validator } from '../index.js'
 import { escapeHtml, query2where } from './utils.js'
-
-import { dd } from 'wiz/debug'
 
 const MULTI = new Set([ 'checkbox', 'rich-select' ])
 
@@ -140,7 +138,45 @@ class Self {
 		return value
 	}
 	validation(...target) {
-		this.v.checkForm(this.conf, this.p, target)
+		dd(instanceName(target[0]))
+
+		// this.v.checkForm(this.conf, this.p, target)
+	}
+	async _check(FORM, p, target, db) {
+		if (isEmpty(target)) target = null
+		if (target && isArray(target)) target = new Set(target)
+		for (const [ n, o ] of Object.entries(FORM)) {
+			if (target) {
+				if (!target.has(n)) continue
+			}
+			if (o.valids) {
+				for (const va of o.valids) {
+					if (this.errors[n]) break
+					if (isArray(va)) {
+						const vva = deepClone(va)
+						const vn = vva.shift()
+						if (vn == 'equal') vva[0] = p[vva[0]]
+						this.call(vn, n, p[n], ...vva)
+					}
+					else {
+						this.call(va, n, p[n])
+					}
+				}
+			}
+			if (db && o.dbValidation && !this.errors[n]) {
+				for (const va of o.dbValidation) {
+					if (this.errors[n]) break
+					if (isArray(va)) {
+						const vva = deepClone(va)
+						const vn = vva.shift()
+						// await db(n, vn, vva)
+					}
+					else {
+						// await db(n, va, [])
+					}
+				}
+			}
+		}
 	}
 	async dbValidation(conn, target) {
 		await this.v._check(this.conf, this.p, target, async (n, method, args) => {

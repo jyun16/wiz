@@ -49,45 +49,6 @@ class Self {
 			this.call(method, ...a)
 		}
 	}
-	checkForm(FORM, p, target, dbValid) {
-		this._check(FORM, p, target, dbValid)
-	}
-	async _check(FORM, p, target, dbValid) {
-		if (isEmpty(target)) target = null
-		if (target && isArray(target)) target = new Set(target)
-		for (const [ n, o ] of Object.entries(FORM)) {
-			if (target) {
-				if (!target.has(n)) continue
-			}
-			if (o.valids) {
-				for (const va of o.valids) {
-					if (this.errors[n]) break
-					if (isArray(va)) {
-						const vva = deepClone(va)
-						const vn = vva.shift()
-						if (vn == 'equal') vva[0] = p[vva[0]]
-						this.call(vn, n, p[n], ...vva)
-					}
-					else {
-						this.call(va, n, p[n])
-					}
-				}
-			}
-			if (dbValid && o.dbValidation && !this.errors[n]) {
-				for (const va of o.dbValidation) {
-					if (this.errors[n]) break
-					if (isArray(va)) {
-						const vva = deepClone(va)
-						const vn = vva.shift()
-						await dbValid(n, vn, vva)
-					}
-					else {
-						await dbValid(n, va, [])
-					}
-				}
-			}
-		}
-	}
 }
 Self.base_message = {
 	ja: {
