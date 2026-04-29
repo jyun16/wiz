@@ -59,7 +59,7 @@ class Self {
 				ret[n] = d[n]
 			}
 			else {
-				if (this.t.isMulti(n)) {
+				if (MULTI.has(n)) {
 					ret[n] = d[n]?.substring(1, d[n].length - 1).split(',').map(x => x.toString())
 				}
 				else { ret[n] = d[n]?.toString() }
@@ -82,7 +82,7 @@ class Self {
 				ret[n] = d[n] != null ? escapeHtml(d[n], { br: true }).replace(/\r?\n/g, '<br>') : ''
 			}
 			else {
-				if (this.t.isMulti(n)) {
+				if (MULTI.has(n)) {
 					ret[n] = d[n].substring(1, d[n].length - 1).split(',').map(x => x.toString())
 				}
 				else { ret[n] = d[n]?.toString() }
@@ -114,7 +114,7 @@ class Self {
 		return o.label ? o.label : uc(n)
 	}
 	optionLabel(n, value) {
-		const o = this.conf[n].option
+		const o = this.conf[n].opts
 		for (let i = 0; i < o.length; i+=2) {
 			if (equal(o[i], parseInt(value))) {
 				return o[i + 1]
@@ -125,7 +125,7 @@ class Self {
 		return type == 'db'
 	}
 	labeledValue(n, value) {
-		if (this.t.isMulti(n)) {
+		if (MULTI.has(n)) {
 			if (!isArray(value)) {
 				if (/^\,/.test(value)) { value = value.substring(1, value.length - 1) }
 				value = value.split(',')
@@ -201,8 +201,8 @@ class Self {
 	hasError() {
 		return this.v.hasError()
 	}
-	errors() {
-		return this.v.errors
+	errors(n) {
+		return n ? this.v.errors[n] : this.v.errors
 	}
 	setError(n, errMsg) {
 		this.v.appendError(n, errMsg)
