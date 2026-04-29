@@ -5,7 +5,7 @@ export const dd = (...args) => console.dir(args.length === 1 ? args[0] : args, {
 
 export function json(x) { return JSON.stringify(x) }
 
-export function parseJson(x) { return JSON.parse(x) }
+export function parseJSON(x) { return JSON.parse(x) }
 
 export function equal(v1, v2) { return _.isEqual(v1, v2) }
 

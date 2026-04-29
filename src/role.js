@@ -2,13 +2,13 @@ import { isEmpty, isArray, isObject, isString, split, objGet, objSet, objHas, ob
 
 /*
 
-const role = new Role([ 'user.edit.@all', 'user.index' ])
+const role = new Role([ 'user.edit.all', 'user.index' ])
 
 const role = new Role({
 	user: {
 		index: true,
 		edit: {
-			'@all": true,
+			'all": true,
 		}
 	}
 })
@@ -22,15 +22,15 @@ role.has('user.edit.delete')
 
 等が true を返す
 
-@all はすべてを許可する意味(本来 $ にしたいが shell で展開されてしまうため @ にしている)
+all はすべてを許可する意味(本来 $ にしたいが shell で展開されてしまうため @ にしている)
 
 追加を行う場合は以下
 
-role.add('group.edit.@all')
+role.add('group.edit.all')
 
 削除は以下
 
-role.remove('group.edit.@all')
+role.remove('group.edit.all')
 
 すべてを許可しつつ任意のアクションだけ拒否したい場合
 
@@ -57,19 +57,19 @@ const Self = class {
 	add(key) {
 		const akey = split(key, '.')
 		const leaf = akey.pop()
-		if (leaf == '@all') {
+		if (leaf == 'all') {
 			const map = objGet(this.conf, akey.join('.'))
 			for (const k in map) { delete map[k] }
 			if (!map) {
-				objSet(this.conf, akey.join('.') + '.@all', true)
+				objSet(this.conf, akey.join('.') + '.all', true)
 			}
 			else {
-				map['@all'] = true
+				map['all'] = true
 			}
 			return
 		}
-		else if (!/^\~/.test(leaf) && objHas(this.conf, akey.join('.') + '.@all')) {
-			objDelete(this.conf, akey.join('.') + '.@all')
+		else if (!/^\~/.test(leaf) && objHas(this.conf, akey.join('.') + '.all')) {
+			objDelete(this.conf, akey.join('.') + '.all')
 		}
 		objSet(this.conf, key, true)
 	}
@@ -88,7 +88,7 @@ const Self = class {
 		let pk = ''
 		for (const k of key) {
 			pk += k
-			if (objHas(this.conf, `${pk}.@all`)) {
+			if (objHas(this.conf, `${pk}.all`)) {
 				ret = true
 				break
 			}
