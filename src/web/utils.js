@@ -108,7 +108,6 @@ export function query2where(q, limit=10) {
 	return ret
 }
 
-
 export const safeTags = {
 	br: true,
   a: [ 'href', 'target' ],
