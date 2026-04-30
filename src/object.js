@@ -31,7 +31,7 @@ export function objPick(obj, keys) {
 }
 
 export function objMap(o, fn) {
-  return Object.fromEntries(Object.entries(o).map(([k, v]) => [k, fn(v, k)]))
+  return Object.fromEntries(Object.entries(o).map(([k, v]) => [k, fn(k, v)]))
 }
 
 export function objFilter(obj, keys) {

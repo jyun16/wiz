@@ -64,7 +64,7 @@ const pickBase = { a: 1, b: 2, c: 3 }
 t.eq({ a: 1, c: 3 }, objPick(pickBase, ['a', 'c']))
 t.eq({ b: 2 }, objOmit(pickBase, ['a', 'c']))
 
-t.eq({ a: 2, b: 4 }, objMap({ a: 1, b: 2 }, (v, k) => v * 2))
+t.eq({ a: 2, b: 4 }, objMap({ a: 1, b: 2 }, (k, v) => v * 2))
 
 const m1 = { a: 1, b: { x: 1 } }
 const m2 = { b: { y: 2 }, c: 3 }
