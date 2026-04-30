@@ -1,5 +1,5 @@
 import { d, dd, isEmpty, isString, isArray, instanceName, deepClone, equal, uc, hash, includes, Validator } from '../index.js'
-import { escapeHtml, query2where } from './utils.js'
+import { escapeHtml, q2f, q2w } from './utils.js'
 
 const MULTI = new Set([ 'checkbox', 'rich-select' ])
 
@@ -213,7 +213,8 @@ class Self {
 	customValidation(method, func, msg) {
 		this.v.custom(method, func, msg)
 	}
-	query2where(q, limit=10) { return query2where(q, limit) }
+	q2f(...args) { return q2f(...args) }
+	q2w(q, limit=10) { return q2w(q, limit) }
 }
 
 export default Self

@@ -89,43 +89,46 @@ export function escapeHtml(html, allow=null) {
 	}
 }
 
-export function query2where(q, limit=10) {
-	let ret = {}
-	if (q.w != null) { ret = JSON.parse(q.w) }
-	ret['-limit'] = limit
-	ret['-offset'] = (q.p - 1|| 0) * ret['-limit']
-	if (q.s != null) {
-		if (/,/.test(q.s)) {
-			q.s = q.s.split(',').map(x => {
-				return x.replace(/-d$/, ' DESC')
-			})
-		}
-		else {
-			q.s = q.s.replace(/-d$/, ' DESC')
-		}
-		ret['-order'] = q.s
-	}
-	return ret
-}
-
 export const safeTags = {
 	br: true,
   a: [ 'href', 'target' ],
   img: [ 'src' ],
 }
 
-export function getP(FORM, formData) {
-	const ret = {}
-	const names = Object.keys(FORM)
-	for (const name of names) {
-		const o = FORM[name]
-		const t = o.type
-		if (includes([ 'multi_select', 'checkbox' ], t)) {
-			ret[name] = formData.getAll(name)
-		}
-		else {
-			ret[name] = formData.get(name)
-		}
-	}
-	return ret
+export function q2f(q) {
+  let ret = q.f || '*'
+  if (q.f && isArray(q.f)) ret = q.f.join(',')
+  return ret
 }
+
+export function q2w(q) {
+  const ret = q.w ? jQSON.parse(q.w) : {}
+  ret['-limit'] = q.l > 100 ? 100 : (q.l || 10)
+  ret['-offset'] = (q.p - 1|| 0) * ret['-limit']
+  if (q.o != null) {
+    if (/,/.test(q.o)) {
+      q.o = q.o.split(',').map(x => x.replace(/-d$/, ' DESC'))
+    }
+    else {
+      q.o = q.o.replace(/-d$/, ' DESC')
+    }
+    ret['-order'] = q.o
+  }
+  return ret
+}
+
+export function genFormData(p) {
+  const ret = new FormData()
+  objMap(p, (k, v) => {
+    if (isArray(v)) {
+      for (const vv of v) {
+        ret.append(k, vv)
+      }
+    }
+    else {
+      ret.append(k, v)
+    }
+  })
+  return ret
+}
+
