@@ -1,5 +1,6 @@
 import sanitizeHtml from 'sanitize-html'
 import { includes } from '../index.js'
+import jsObj from '../jsobj.js'
 
 export function urlBase(url) {
 	return url.origin + url.pathname
@@ -102,7 +103,7 @@ export function q2f(q) {
 }
 
 export function q2w(q) {
-  const ret = q.w ? jQSON.parse(q.w) : {}
+  const ret = q.w ? jsObj.parse(q.w) : {}
   ret['-limit'] = q.l > 100 ? 100 : (q.l || 10)
   ret['-offset'] = (q.p - 1|| 0) * ret['-limit']
   if (q.o != null) {
