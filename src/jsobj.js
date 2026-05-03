@@ -1,4 +1,3 @@
-const d = console.log
 export default (function() {
 	function tokenize(input) {
 		const tokens = []
@@ -167,33 +166,32 @@ function parse(text) {
 	}
 
 	function dump(obj, compact = false, indent = 0) {
-		const pad = (n) => '	'.repeat(n)
-		function isSafeKey(k) {
-			return /^[a-zA-Z_][a-zA-Z0-9_-]*$/.test(k)
-		}
-		function stringify(val, lvl) {
+		const pad = (n) => ' '.repeat(n * 2)
+		const isSafeKey = (k) => /^[a-zA-Z_][a-zA-Z0-9_-]*$/.test(k)
+		const stringify = (val, lvl) => {
 			if (val instanceof Set) {
 				const arr = [...val]
 				const joined = arr.map(v => `'${v}'`).join(compact ? ',' : ', ')
-				return '<' + (compact ? '' : ' ') + joined + (compact ? '' : ' ') + '>'
+				return `<${compact ? '' : ' '}${joined}${compact ? '' : ' '}>`
 			}
 			if (Array.isArray(val)) {
-				if (compact) return '[' + val.map(v => stringify(v, lvl)).join(',') + ']'
+				if (compact) return `[${val.map(v => stringify(v, lvl)).join(',')}]`
 				const body = val.map(v => pad(lvl + 1) + stringify(v, lvl + 1)).join(',\n')
-				return '[\n' + body + '\n' + pad(lvl) + ']'
+				return `[\n${body}\n${pad(lvl)}]`
 			}
 			if (typeof val === 'object' && val !== null) {
+				const entries = Object.entries(val)
 				if (compact) {
-					return '{' + Object.entries(val).map(([k, v]) => {
-						const keyStr = isSafeKey(k) ? k : `'${k.replace(/'/g, "\\'")}'`
-						return `${keyStr}:${stringify(v, lvl)}`
-					}).join(',') + '}'
+					return `{${entries.map(([k, v]) => {
+						const ks = isSafeKey(k) ? k : `'${k.replace(/'/g, "\\'")}'`
+						return `${ks}:${stringify(v, lvl)}`
+					}).join(',')}}`
 				}
-				const body = Object.entries(val).map(([k, v]) => {
-					const keyStr = isSafeKey(k) ? k : `'${k.replace(/'/g, "\\'")}'`
-					return pad(lvl + 1) + `${keyStr}: ${stringify(v, lvl + 1)}`
+				const body = entries.map(([k, v]) => {
+					const ks = isSafeKey(k) ? k : `'${k.replace(/'/g, "\\'")}'`
+					return `${pad(lvl + 1)}${ks}: ${stringify(v, lvl + 1)}`
 				}).join(',\n')
-				return '{\n' + body + '\n' + pad(lvl) + '}'
+				return `{\n${body}\n${pad(lvl)}}`
 			}
 			if (typeof val === 'string') return `'${val.replace(/'/g, "\\'")}'`
 			return String(val)

@@ -1,10 +1,10 @@
 import _ from 'lodash'
+import jsObj from './jsobj.js'
 
-export const d = (...args) => console.dir(args.length === 1 ? args[0] : args, { depth: null })
-export const dd = (...args) => console.dir(args.length === 1 ? args[0] : args, { depth: null })
+export const d = (...args) => console.log(...args.map(a => typeof a == 'object' ? jsObj.dump(a) : a))
+export const dd = (...args) => d(...args)
 
 export function json(x) { return JSON.stringify(x) }
-
 export function parseJSON(x) { return JSON.parse(x) }
 
 export function equal(v1, v2) { return _.isEqual(v1, v2) }
@@ -100,7 +100,7 @@ export * from './date.js'
 export * as calendar from './calendar.js'
 export * as web from './web/utils.js'
 export { default as ISA } from './isa.js'
-export { default as jsObj } from './jsobj.js'
+export { jsObj }
 export { default as validation } from './validation.js'
 export { default as Validator } from './validator.js'
 export { default as Form } from './web/form.js'
