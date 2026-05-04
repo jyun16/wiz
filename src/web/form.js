@@ -110,7 +110,7 @@ class Self {
 		return ret
 	}
 	label(n) {
-		const conf = this.conf[n]
+		const o = this.conf[n]
 		return o.label ? o.label : uc(n)
 	}
 	optionLabel(n, value) {
