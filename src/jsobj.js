@@ -63,7 +63,8 @@ export default (function() {
 					if (input[j] === '\\') {
 						j++
 						str += input[j++]
-					} else {
+					}
+					else {
 						str += input[j++]
 					}
 				}
@@ -168,33 +169,48 @@ function parse(text) {
 	function dump(obj, compact = false, indent = 0) {
 		const pad = (n) => ' '.repeat(n * 2)
 		const isSafeKey = (k) => /^[a-zA-Z_][a-zA-Z0-9_-]*$/.test(k)
+		const seen = new WeakSet()
 		const stringify = (val, lvl) => {
-			if (val instanceof Set) {
-				const arr = [...val]
-				const joined = arr.map(v => `'${v}'`).join(compact ? ',' : ', ')
-				return `<${compact ? '' : ' '}${joined}${compact ? '' : ' '}>`
-			}
-			if (Array.isArray(val)) {
-				if (compact) return `[${val.map(v => stringify(v, lvl)).join(',')}]`
-				const body = val.map(v => pad(lvl + 1) + stringify(v, lvl + 1)).join(',\n')
-				return `[\n${body}\n${pad(lvl)}]`
-			}
-			if (typeof val === 'object' && val !== null) {
-				const entries = Object.entries(val)
-				if (compact) {
-					return `{${entries.map(([k, v]) => {
-						const ks = isSafeKey(k) ? k : `'${k.replace(/'/g, "\\'")}'`
-						return `${ks}:${stringify(v, lvl)}`
-					}).join(',')}}`
-				}
-				const body = entries.map(([k, v]) => {
-					const ks = isSafeKey(k) ? k : `'${k.replace(/'/g, "\\'")}'`
-					return `${pad(lvl + 1)}${ks}: ${stringify(v, lvl + 1)}`
-				}).join(',\n')
-				return `{\n${body}\n${pad(lvl)}}`
-			}
+			if (val === null) return 'null'
 			if (typeof val === 'string') return `'${val.replace(/'/g, "\\'")}'`
-			return String(val)
+			if (typeof val === 'function') return val.toString().replace(/\s+/g, ' ')
+			if (typeof val !== 'object') return String(val)
+			if (seen.has(val)) return '[Circular]'
+			seen.add(val)
+			let res
+			if (val instanceof Date) res = `new Date('${val.toISOString()}')`
+			else if (val instanceof RegExp) res = String(val)
+			else if (val instanceof Set) {
+				if (compact) res = `<${[...val].map(v => stringify(v, lvl)).join(',')}>`
+				else {
+					const body = [...val].map(v => pad(lvl + 1) + stringify(v, lvl + 1)).join(',\n')
+					res = `<\n${body}\n${pad(lvl)}>`
+				}
+			}
+			else if (val instanceof Map) {
+				if (compact) res = `Map{${[...val.entries()].map(([k, v]) => `${stringify(k, lvl)}=>${stringify(v, lvl)}`).join(',')}}`
+				else {
+					const body = [...val.entries()].map(([k, v]) => `${pad(lvl + 1)}${stringify(k, lvl + 1)} => ${stringify(v, lvl + 1)}`).join(',\n')
+					res = `Map{\n${body}\n${pad(lvl)}}`
+				}
+			}
+			else if (Array.isArray(val)) {
+				if (compact) res = `[${val.map(v => stringify(v, lvl)).join(',')}]`
+				else {
+					const body = val.map(v => pad(lvl + 1) + stringify(v, lvl + 1)).join(',\n')
+					res = `[\n${body}\n${pad(lvl)}]`
+				}
+			}
+			else {
+				const entries = Object.entries(val)
+				if (compact) res = `{${entries.map(([k, v]) => `${isSafeKey(k) ? k : `'${k.replace(/'/g, "\\'")}'`}:${stringify(v, lvl)}`).join(',')}}`
+				else {
+					const body = entries.map(([k, v]) => `${pad(lvl + 1)}${isSafeKey(k) ? k : `'${k.replace(/'/g, "\\'")}'`}: ${stringify(v, lvl + 1)}`).join(',\n')
+					res = `{\n${body}\n${pad(lvl)}}`
+				}
+			}
+			seen.delete(val)
+			return res
 		}
 		return stringify(obj, indent)
 	}

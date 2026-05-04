@@ -1,8 +1,18 @@
 import _ from 'lodash'
 import jsObj from './jsobj.js'
 
-export const d = (...args) => console.log(...args.map(a => typeof a == 'object' ? jsObj.dump(a) : a))
-export const dd = (...args) => d(...args)
+export function d(...args) {
+	console.log(...args.map(a => {
+		if (a === null) return 'null'
+		try {
+			return a.constructor?.name === 'Object' ? jsObj(a) : a
+		} catch (e) {
+			return a
+		}
+	}))
+}
+
+export function dd(...args) { d(...args) }
 
 export function json(x) { return JSON.stringify(x) }
 export function parseJSON(x) { return JSON.parse(x) }
