@@ -4,11 +4,9 @@ import jsObj from './jsobj.js'
 export function d(...args) {
 	console.log(...args.map(a => {
 		if (a === null) return 'null'
-		try {
-			return a.constructor?.name === 'Object' ? jsObj(a) : a
-		} catch (e) {
-			return a
-		}
+		const type = a.constructor?.name
+		const dump = [ 'Object', 'Array' ]
+		return dump.includes(type) ? jsObj.dump(a) : a
 	}))
 }
 
