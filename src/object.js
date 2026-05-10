@@ -3,6 +3,14 @@ import { equal, isString, isObject, array2obj } from './index.js'
 
 const splitPath = key => typeof key === 'string' ? key.replace(/\[(\w+)\]/g, '.$1').split('.') : key
 
+export function cleanObj(obj) {
+	return Object.fromEntries(
+		Object.entries(obj)
+			.map(([k, v]) => [k, v && typeof v === 'object' && !Array.isArray(v) ? cleanObj(v) : v])
+			.filter(([_, v]) => v != null)
+	)
+}
+
 export function objKeys(o) {
 	return Object.keys(o || {})
 }
@@ -16,7 +24,7 @@ export function objFromEntries(o) {
 }
 
 export function objClone(o) {
-  return structuredClone(o)
+	return structuredClone(o)
 }
 
 export function objDeepFreeze(o = {}) {
@@ -31,7 +39,7 @@ export function objPick(obj, keys) {
 }
 
 export function objMap(o, fn) {
-  return Object.fromEntries(Object.entries(o).map(([k, v]) => [k, fn(k, v)]))
+	return Object.fromEntries(Object.entries(o).map(([k, v]) => [k, fn(k, v)]))
 }
 
 export function objFilter(obj, keys) {
@@ -67,20 +75,20 @@ export function objOmit(obj, keys) {
 }
 
 export function objFlatten(o, prefix = '') {
-  return Object.entries(o).reduce((res, [k, v]) => {
-    const key = prefix ? `${prefix}.${k}` : k
-    if (v && typeof v === 'object' && !Array.isArray(v)) Object.assign(res, objFlatten(v, key))
-    else res[key] = v
-    return res
-  }, {})
+	return Object.entries(o).reduce((res, [k, v]) => {
+		const key = prefix ? `${prefix}.${k}` : k
+		if (v && typeof v === 'object' && !Array.isArray(v)) Object.assign(res, objFlatten(v, key))
+		else res[key] = v
+		return res
+	}, {})
 }
 
 export function objCompact(o) {
-  for (const k in o) {
-    if (o[k] && typeof o[k] === 'object') objCompact(o[k])
-    if (o[k] == null || o[k] === '') delete o[k]
-  }
-  return o
+	for (const k in o) {
+		if (o[k] && typeof o[k] === 'object') objCompact(o[k])
+		if (o[k] == null || o[k] === '') delete o[k]
+	}
+	return o
 }
 
 export function objMerge(target, ...sources) {
