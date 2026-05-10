@@ -1,4 +1,4 @@
-import { d, dd, isEmpty, isString, isArray, instanceName, deepClone, equal, uc, hash, includes, Validator } from '../index.js'
+import { d, dd, isEmpty, isString, isArray, instanceName, objPick, deepClone, equal, uc, hash, includes, Validator } from '../index.js'
 import { escapeHtml, q2f, q2w } from './utils.js'
 
 const MULTI = new Set([ 'checkbox', 'rich-select' ])
@@ -6,16 +6,19 @@ const MULTI = new Set([ 'checkbox', 'rich-select' ])
 class Self {
 	constructor(conf={}, p={}, opts={}) {
 		this.conf = conf
-		this.p = p
 		this.v = new Validator(this.lang)
+		this.set(p)
 		if (opts.customErrorMessage) {
 			for (const method in opts.customErrorMessage) {
 				this.customErrorMessage(method, opts.customErrorMessage[method])
 			}
 		}
 	}
+	get() {
+		return this.p
+	}
 	set(p) {
-		this.p = p
+		this.p = objPick(p, Object.keys(this.conf))
 		this.v.reset()
 	}
 	reset() { this.set({}) }
