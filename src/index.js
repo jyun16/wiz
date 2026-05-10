@@ -12,6 +12,22 @@ export function d(...args) {
 
 export function dd(...args) { d(...args) }
 
+export function callStack() {
+	const ret = new Error().stack.split('at ')
+	ret.shift()
+	ret.shift()
+	return ret.map(v => v.trim())
+}
+
+export function caller(depth = 0) {
+	const stack = new Error().stack.split('at ')
+	stack.shift()
+	stack.shift()
+	const target = stack[depth]
+	let ret = /\(.+\)/.test(target) ? /\((.+)\)/.exec(target)[1] : target
+	return ret.replace('\n', '').trim().replace(/:\d+$/, '')
+}
+
 export function json(x) { return JSON.stringify(x) }
 export function parseJSON(x) { return JSON.parse(x) }
 
