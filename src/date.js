@@ -107,7 +107,7 @@ export function ymdStr(v) {
 	const n = new Date()
 	const y = String(n.getFullYear())
 	const [ m, d ] = [ n.getMonth() + 1, n.getDate() ].map(v => String(v).padStart(2, '0'))
-	return [ y, m, d ]
+	return [ y, m, d ].join('-')
 }
 
 export function hm(v) {
@@ -122,7 +122,7 @@ export function hm(v) {
 export function hmStr(v) {
 	if (v) return v.split(':')
 	const n = new Date()
-	return [ n.getHours(), n.getMinutes() ].map(v => String(v).padStart(2, '0'))
+	return [ n.getHours(), n.getMinutes() ].map(v => String(v).padStart(2, '0')).join(':')
 }
 
 export function hms(v) {
@@ -137,7 +137,7 @@ export function hms(v) {
 export function hmsStr(v) {
 	if (v) return v.split(':')
 	const n = new Date()
-	return [ n.getHours(), n.getMinutes(), n.getSeconds() ].map(v => String(v).padStart(2, '0'))
+	return [ n.getHours(), n.getMinutes(), n.getSeconds() ].map(v => String(v).padStart(2, '0')).join(':')
 }
 
 export function simpleDate(date) {
