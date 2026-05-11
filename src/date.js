@@ -1,5 +1,5 @@
 import dayjs from 'dayjs'
-import { isObject } from './index.js'
+import { isString, isObject } from './index.js'
 
 export function now() {
 	return dateFormat(new Date())
@@ -103,11 +103,11 @@ export function ymd(v) {
 }
 
 export function ymdStr(v) {
-	if (v) return v
-	const n = new Date()
-	const y = String(n.getFullYear())
-	const [ m, d ] = [ n.getMonth() + 1, n.getDate() ].map(v => String(v).padStart(2, '0'))
-	return [ y, m, d ].join('-')
+	if (v) {
+		if (isString(v)) { v = ymd(v) }
+	}
+	else { v = ymd() }
+	return [ String(v[0]), String(v[1]).padStart(2, '0'), String(v[2]).padStart(2, '0') ].join('-')
 }
 
 export function hm(v) {
@@ -120,9 +120,11 @@ export function hm(v) {
 }
 
 export function hmStr(v) {
-	if (v) return v.split(':')
-	const n = new Date()
-	return [ n.getHours(), n.getMinutes() ].map(v => String(v).padStart(2, '0')).join(':')
+	if (v) {
+		if (isString(v)) { v = hm(v) }
+	}
+	else { v = hm() }
+	return v.map(x => String(x).padStart(2, '0')).join(':')
 }
 
 export function hms(v) {
@@ -135,9 +137,11 @@ export function hms(v) {
 }
 
 export function hmsStr(v) {
-	if (v) return v.split(':')
-	const n = new Date()
-	return [ n.getHours(), n.getMinutes(), n.getSeconds() ].map(v => String(v).padStart(2, '0')).join(':')
+	if (v) {
+		if (isString(v)) { v = hms(v) }
+	}
+	else { v = hms() }
+	return v.map(x => String(x).padStart(2, '0')).join(':')
 }
 
 export function simpleDate(date) {

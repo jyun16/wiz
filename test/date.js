@@ -1,3 +1,4 @@
+import { d, dd } from '../src/index.js'
 import * as utils from '../src/date.js'
 Object.assign(globalThis, utils)
 import Test from '../src/test.js'
@@ -31,3 +32,18 @@ t.eq('1975-12-31', dateEndOf('1975-06-11', 'year'))
 t.eq('1976-02-29', dateEndOf('1976-02-01', 'month'))
 
 t.eq(5, dayW('1976-06-11'))
+
+t.eq([ 1975, 6, 11 ], ymd('1975-06-11'))
+t.eq('1975-06-11', ymdStr('1975-06-11'))
+t.eq('1975-06-11', ymdStr('1975-6-11'))
+t.eq('1975-06-11', ymdStr([ 1975, 6, 11 ]))
+
+t.eq([ 1, 2 ], hm('01:02'))
+t.eq('01:02', hmStr('01:02'))
+t.eq('01:02', hmStr('1:2'))
+t.eq('01:02', hmStr([ 1, 2 ]))
+
+t.eq([ 1, 2, 3 ], hms('01:02:03'))
+t.eq('01:02:03', hmsStr('01:02:03'))
+t.eq('01:02:03', hmsStr('1:2:3'))
+t.eq('01:02:03', hmsStr([ 1, 2, 3 ]))
