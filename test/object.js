@@ -1,3 +1,4 @@
+import { d, dd } from '../src/index.js'
 import * as utils from '../src/object.js'
 Object.assign(globalThis, utils)
 import Test from '../src/test.js'
