@@ -153,6 +153,9 @@ class Self {
 		if (target && isArray(target)) target = new Set(target)
 		return target
 	}
+	resetValidation() {
+		this.v.reset()
+	}
 	validation(...target) {
 		const conf = this.conf
 		const p = this.p
