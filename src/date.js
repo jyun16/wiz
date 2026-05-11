@@ -103,7 +103,7 @@ export function ymd(v) {
 }
 
 export function ymdStr(v) {
-	if (v) return v.split('-')
+	if (v) return v
 	const n = new Date()
 	const y = String(n.getFullYear())
 	const [ m, d ] = [ n.getMonth() + 1, n.getDate() ].map(v => String(v).padStart(2, '0'))
