@@ -2,6 +2,7 @@ import { d, dd, isEmpty, isString, isArray, instanceName, objPick, deepClone, eq
 import { escapeHtml, q2f, q2w } from './utils.js'
 
 const MULTI = new Set([ 'checkbox', 'rich-select' ])
+const LABELED = new Set([ 'select', 'radio', 'checkbox', 'rich-select' ])
 
 class Self {
 	constructor(conf={}, p={}, opts={}) {
@@ -34,19 +35,38 @@ class Self {
 			}
 		}
 	}
-	toDB() {
+	toDetail() {
+		const conf = this.conf
+		const p = this.p
 		const ret = {}
-		const d = this.p
-		for (const n in d) {
-			const o = this.conf[n]
-			if (!o || o.skipDB) continue
+		for (const n in p) {
+			if (!conf[n]) { continue }
+			const o = conf[n]
+			const type = o.type
+			if (type == 'textarea') {
+				ret[n] = p[n] != null ? escapeHtml(p[n], { br: true }).replace(/\r?\n/g, '<br>') : ''
+			}
+			else if (label && LABELD.has(n)) {
+				ret[n] = this.labeledValue(n, ret[n])
+			}
+		}
+		return ret
+	}
+	toDB() {
+		const conf = this.conf
+		const p = this.p
+		const ret = {}
+		for (const n in p) {
+			if (!conf[n]) { continue }
+			const o = conf[n]
+			if (o.skipDB) continue
 			if (MULTI.has(o.type)) {
-				if (isString(d[n])) { d[n] = JSON.parse(d[n]) }
-				ret[n] = `,${d[n].join(',')},`
+				if (isString(p[n])) { p[n] = JSON.parse(p[n]) }
+				ret[n] = `,${p[n].join(',')},`
 			}
 			else {
-				if (o.hash) ret[n] = hash(d[n], o.hash)
-				else ret[n] = d[n]
+				if (o.hash) ret[n] = hash(p[n], o.hash)
+				else ret[n] = p[n]
 			}
 		}
 		return ret
@@ -75,11 +95,12 @@ class Self {
 		return ret
 	}
 	detailFromDB(d, label=true) {
+		const conf = this.conf
 		const ret = {}
 		for (const n in d) {
 			if (n == 'id') { ret.id = d.id; continue }
-			if (!this.conf[n]) { continue }
-			const o = this.conf[n]
+			if (!conf[n]) { continue }
+			const o = conf[n]
 			const type = o.type
 			if (type == 'textarea') {
 				ret[n] = d[n] != null ? escapeHtml(d[n], { br: true }).replace(/\r?\n/g, '<br>') : ''
@@ -89,7 +110,7 @@ class Self {
 					ret[n] = d[n].substring(1, d[n].length - 1).split(',').map(x => x.toString())
 				}
 				else { ret[n] = d[n]?.toString() }
-				if (label && (type == 'select' || type == 'radio' || type == 'checkbox')) {
+				if (label && LABELD.has(n)) {
 					ret[n] = this.labeledValue(n, ret[n])
 				}
 			}
@@ -98,11 +119,7 @@ class Self {
 		return ret
 	}
 	listFromDB(list, label=true) {
-		const ret = []
-		for (const d of list) {
-			ret.push(this.detailFromDB(d, label))
-		}
-		return ret
+		return list.map(d => this.detailFromDB(d, label))
 	}
 	fields() {
 		const ret = {}

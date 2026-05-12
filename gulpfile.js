@@ -45,9 +45,14 @@ const bsr = cb => {
 
 const js_dir = [ 'src/**/*.js' ]
 const jsw = () => { watch(js_dir, series(jsc, bsr)) }
-const jsc = () => {
+const jsc = (cb) => {
 	return src('src/index.js')
-		.pipe(plumber())	
+		.pipe(plumber({
+			errorHandler: function(err) {
+				d(err.message)
+				this.emit('end')
+			}
+		}))
 		.pipe(esbuild({
 			bundle: true,
 			minify: true,
@@ -58,6 +63,7 @@ const jsc = () => {
 			outfile: 'wiz/index.min.js',
 		}))
 		.pipe(dest(CONF.static + 'js/'))
+		.on('end', cb)
 }
 
 const htmlEscape = html => html.replace(/[&'`"<>]/g, m => {
