@@ -15,9 +15,7 @@ class Self {
 			}
 		}
 	}
-	get() {
-		return this.p
-	}
+	get() { return this.p }
 	set(p) {
 		this.p = objPick(p, Object.keys(this.conf))
 		this.v.reset()
@@ -39,16 +37,12 @@ class Self {
 		const conf = this.conf
 		const p = this.p
 		const ret = {}
-		for (const n in p) {
-			if (!conf[n]) { continue }
+		for (const n in conf) {
 			const o = conf[n]
 			const type = o.type
-			if (type == 'textarea') {
-				ret[n] = p[n] != null ? escapeHtml(p[n], { br: true }).replace(/\r?\n/g, '<br>') : ''
-			}
-			else if (label && LABELD.has(n)) {
-				ret[n] = this.labeledValue(n, ret[n])
-			}
+			if (type == 'textarea') { ret[n] = p[n] != null ? escapeHtml(p[n], { br: true }).replace(/\r?\n/g, '<br>') : '' }
+			else if (LABELED.has(type)) { ret[n] = this.labeledValue(n, p[n]) }
+			else { ret[n] = p[n] }
 		}
 		return ret
 	}
@@ -56,8 +50,7 @@ class Self {
 		const conf = this.conf
 		const p = this.p
 		const ret = {}
-		for (const n in p) {
-			if (!conf[n]) { continue }
+		for (const n in conf) {
 			const o = conf[n]
 			if (o.skipDB) continue
 			if (MULTI.has(o.type)) {
@@ -72,23 +65,17 @@ class Self {
 		return ret
 	}
 	fromDB(d, label=false) {
+		const conf = this.conf
 		const ret = {}
-		for (const n in d) {
+		for (const n in conf) {
+			const o = conf[n]
 			if (n == 'id') { ret.id = d.id; continue }
-			if (!this.conf[n]) { continue }
-			const o = this.conf[n]
 			const type = o.type
-			if (type == 'textarea') {
-				ret[n] = d[n]
-			}
+			if (type == 'textarea') { ret[n] = d[n] }
 			else {
-				if (MULTI.has(n)) {
-					ret[n] = d[n]?.substring(1, d[n].length - 1).split(',').map(x => x.toString())
-				}
+				if (MULTI.has(type)) { ret[n] = d[n]?.substring(1, d[n].length - 1).split(',').map(x => x.toString()) }
 				else { ret[n] = d[n]?.toString() }
-				if (label && (type == 'select' || type == 'radio' || type == 'checkbox')) {
-					ret[n] = this.labeledValue(n, ret[n])
-				}
+				if (label && LABELED.has(type)) { ret[n] = this.labeledValue(n, ret[n]) }
 			}
 		}
 		this.p = ret
@@ -102,25 +89,17 @@ class Self {
 			if (!conf[n]) { continue }
 			const o = conf[n]
 			const type = o.type
-			if (type == 'textarea') {
-				ret[n] = d[n] != null ? escapeHtml(d[n], { br: true }).replace(/\r?\n/g, '<br>') : ''
-			}
+			if (type == 'textarea') { ret[n] = d[n] != null ? escapeHtml(d[n], { br: true }).replace(/\r?\n/g, '<br>') : '' }
 			else {
-				if (MULTI.has(n)) {
-					ret[n] = d[n].substring(1, d[n].length - 1).split(',').map(x => x.toString())
-				}
+				if (MULTI.has(n)) { ret[n] = d[n].substring(1, d[n].length - 1).split(',').map(x => x.toString()) }
 				else { ret[n] = d[n]?.toString() }
-				if (label && LABELD.has(n)) {
-					ret[n] = this.labeledValue(n, ret[n])
-				}
+				if (label && LABELED.has(type)) { ret[n] = this.labeledValue(n, ret[n]) }
 			}
 		}
 		this.p = ret
 		return ret
 	}
-	listFromDB(list, label=true) {
-		return list.map(d => this.detailFromDB(d, label))
-	}
+	listFromDB(list, label=true) { return list.map(d => this.detailFromDB(d, label)) }
 	fields() {
 		const ret = {}
 		for (const f in this.conf) {
@@ -133,29 +112,11 @@ class Self {
 		const o = this.conf[n]
 		return o.label ? o.label : uc(n)
 	}
-	optionLabel(n, value) {
-		const o = this.conf[n].opts
-		for (let i = 0; i < o.length; i+=2) {
-			if (equal(o[i], parseInt(value))) {
-				return o[i + 1]
-			}
-		}
-	}
-	skip4html(type) {
-		return type == 'db'
-	}
-	labeledValue(n, value) {
-		if (MULTI.has(n)) {
-			if (!isArray(value)) {
-				if (/^\,/.test(value)) { value = value.substring(1, value.length - 1) }
-				value = value.split(',')
-			}
-			return value.map(v => this.optionLabel(n, v))
-		}
-		else {
-			return this.optionLabel(n, value)
-		}
-		return value
+	optionLabel(n, value) { return this.conf[n].opts[value] }
+	skip4html(type) { return type == 'db' }
+	labeledValue(n, v) {
+		if (isArray(v)) { return v.map(x => this.optionLabel(n, x)) }
+		else { return this.optionLabel(n, v) }
 	}
 	hasDBValids() {
 		const conf = this.conf
@@ -170,9 +131,7 @@ class Self {
 		if (target && isArray(target)) target = new Set(target)
 		return target
 	}
-	resetValidation() {
-		this.v.reset()
-	}
+	resetValidation() { this.v.reset() }
 	validation(...target) {
 		const conf = this.conf
 		const p = this.p
@@ -221,21 +180,11 @@ class Self {
 			}
 		}
 	}
-	hasError() {
-		return this.v.hasError()
-	}
-	errors(n) {
-		return n ? this.v.errors[n] : this.v.errors
-	}
-	setError(n, errMsg) {
-		this.v.appendError(n, errMsg)
-	}
-	customErrorMessage(method, msg) {
-		this.v.customMessage(method, msg)
-	}
-	customValidation(method, func, msg) {
-		this.v.custom(method, func, msg)
-	}
+	hasError() { return this.v.hasError() }
+	errors(n) { return n ? this.v.errors[n] : this.v.errors }
+	setError(n, errMsg) { this.v.appendError(n, errMsg) }
+	customErrorMessage(method, msg) { this.v.customMessage(method, msg) }
+	customValidation(method, func, msg) { this.v.custom(method, func, msg) }
 	q2f(...args) { return q2f(...args) }
 	q2w(q, limit=10) { return q2w(q, limit) }
 }

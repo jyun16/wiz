@@ -1,8 +1,19 @@
 import dayjs from 'dayjs'
 import { isString, isObject } from './index.js'
 
-export function now() {
-	return dateFormat(new Date())
+export function now() { return dateFormat(new Date()) }
+export function nowObj() { return dayjs() }
+
+export function dateObj(date) {
+	if (isObject(date) && dayjs.isDayjs(date)) return date
+	if (isObject(date)) return dayjs(date)
+	if (/^\d{1,2}:\d{2}(:\d{2})?$/.test(date)) return dayjs(`2000-01-01 ${date}`)
+	if (/^\d+$/.test(date)) return epoch2date(date)
+	return dayjs(date)
+}
+
+export function dateFormat(date, format = 'YYYY-MM-DD HH:mm:ss') {
+	return dateObj(date).format(format)
 }
 
 function _add(date, val, unit, format) {
@@ -63,21 +74,6 @@ export function datetimeEndOf(dt, unit = 'day') {
 
 export function dayW(date) {
   return dateObj(date).day()
-}
-
-export function nowObj() {
-	return dayjs()
-}
-
-export function dateObj(date) {
-	if (isObject(date) && dayjs.isDayjs(date)) return date
-	if (isObject(date)) return dayjs(date)
-	if (/^\d+$/.test(date)) return epoch2date(date)
-	return dayjs(date)
-}
-
-export function dateFormat(date, format = 'YYYY-MM-DD HH:mm:ss') {
-	return dateObj(date).format(format)
 }
 
 export function epoch(dt = null) {
