@@ -30,6 +30,8 @@ const colorTest = () => {
 
 const t = new Test()
 
+t.eq(range(3), [ 0, 1, 2 ])
+t.eq(range(1, 3), [ 1, 2, 3 ])
 t.eq(range(1, 10, 2), [ 1, 3, 5, 7, 9 ])
 t.eq(includes(range(0, 3, 2), 2), true)
 isEmptyTest(t)

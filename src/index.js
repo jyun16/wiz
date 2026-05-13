@@ -29,6 +29,7 @@ export function caller(depth = 0) {
 }
 
 export function json(x) { return JSON.stringify(x) }
+
 export function parseJSON(x) { return JSON.parse(x) }
 
 export function equal(v1, v2) { return _.isEqual(v1, v2) }
@@ -49,7 +50,11 @@ export function rand(min, max) {
 	return Math.floor(Math.random() * (max - min + 1) + min)
 }
 
-export function range(...args) { return _.range(...args) }
+export function range(start, end, step = 1) {
+  if (end === undefined) [start, end] = [0, start-1]
+  const len = Math.floor((end - start) / step) + 1
+  return Array.from({ length: len }, (_, i) => start + i * step)
+}
 
 export function deepClone(v) { return _.cloneDeep(v) }
 

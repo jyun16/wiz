@@ -20,7 +20,6 @@ t.eq(['a', 'b'], arrayTrim([' a ', 'b ']))
 t.eq({ added: [5, 6], removed: [2, 4] }, arrayDiff([1, 2, 3, 4], [1, 3, 5, 6]))
 t.eq([1], arrayWrap(1))
 t.eq([1], arrayWrap([1]))
-t.eq([1, 2, 3], arrayRange(1, 3))
 
 class Hoge {
   constructor() {

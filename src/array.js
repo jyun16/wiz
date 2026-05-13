@@ -18,6 +18,11 @@ export function arrayChoice(a) {
   return a[Math.floor(Math.random() * a.length)]
 }
 
+export function arrayRandomPick(a) {
+  const n = Math.floor(Math.random() * a.length) + 1
+  return [...a].sort(() => Math.random() - 0.5).slice(0, n)
+}
+
 export function arrayPick(a, key) {
 	return a.map(v => v[key])
 }
