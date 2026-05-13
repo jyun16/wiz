@@ -91,9 +91,11 @@ class Self {
 			const type = o.type
 			if (type == 'textarea') { ret[n] = d[n] != null ? escapeHtml(d[n], { br: true }).replace(/\r?\n/g, '<br>') : '' }
 			else {
-				if (MULTI.has(n)) { ret[n] = d[n].substring(1, d[n].length - 1).split(',').map(x => x.toString()) }
+				if (MULTI.has(type)) { ret[n] = d[n].substring(1, d[n].length - 1).split(',').map(x => x.toString()) }
 				else { ret[n] = d[n]?.toString() }
-				if (label && LABELED.has(type)) { ret[n] = this.labeledValue(n, ret[n]) }
+				if (label && LABELED.has(type)) {
+					ret[n] = this.labeledValue(n, ret[n])
+				}
 			}
 		}
 		this.p = ret
