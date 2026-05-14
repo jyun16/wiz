@@ -37,12 +37,14 @@ class Self {
 		const conf = this.conf
 		const p = this.p
 		const ret = {}
-		for (const n in conf) {
+		for (const n in p) {
+			if (!(n in p)) continue
+			const v = p[n]
 			const o = conf[n]
 			const type = o.type
-			if (type == 'textarea') { ret[n] = p[n] != null ? escapeHtml(p[n], { br: true }).replace(/\r?\n/g, '<br>') : '' }
-			else if (LABELED.has(type)) { ret[n] = this.labeledValue(n, p[n]) }
-			else { ret[n] = p[n] }
+			if (type == 'textarea') { ret[n] = v != null ? escapeHtml(v, { br: true }).replace(/\r?\n/g, '<br>') : '' }
+			else if (LABELED.has(type)) { ret[n] = this.labeledValue(n, v) }
+			else { ret[n] = v }
 		}
 		return ret
 	}
@@ -51,15 +53,17 @@ class Self {
 		const p = this.p
 		const ret = {}
 		for (const n in conf) {
+			if (!(n in p)) continue
+			const v = p[n]
 			const o = conf[n]
 			if (o.skipDB) continue
 			if (MULTI.has(o.type)) {
-				if (isString(p[n])) { p[n] = JSON.parse(p[n]) }
-				ret[n] = `,${p[n].join(',')},`
+				if (isString(v)) { v = JSON.parse(v) }
+				ret[n] = `,${v.join(',')},`
 			}
 			else {
-				if (o.hash) ret[n] = hash(p[n], o.hash)
-				else ret[n] = p[n]
+				if (o.hash) ret[n] = hash(v, o.hash)
+				else ret[n] = v
 			}
 		}
 		return ret
@@ -68,13 +72,15 @@ class Self {
 		const conf = this.conf
 		const ret = {}
 		for (const n in conf) {
+			if (!(n in d)) continue
+			const v = d[n]
 			const o = conf[n]
 			if (n == 'id') { ret.id = d.id; continue }
 			const type = o.type
-			if (type == 'textarea') { ret[n] = d[n] }
+			if (type == 'textarea') { ret[n] = v }
 			else {
-				if (MULTI.has(type)) { ret[n] = d[n]?.substring(1, d[n].length - 1).split(',').map(x => x.toString()) }
-				else { ret[n] = d[n]?.toString() }
+				if (MULTI.has(type)) { ret[n] = v?.substring(1, v.length - 1).split(',').map(x => x.toString()) }
+				else { ret[n] = v?.toString() }
 				if (label && LABELED.has(type)) { ret[n] = this.labeledValue(n, ret[n]) }
 			}
 		}
@@ -84,15 +90,16 @@ class Self {
 	detailFromDB(d, label=true) {
 		const conf = this.conf
 		const ret = {}
-		for (const n in d) {
+		for (const n in conf) {
+			if (!(n in d)) continue
 			if (n == 'id') { ret.id = d.id; continue }
-			if (!conf[n]) { continue }
+			const v = d[n]
 			const o = conf[n]
 			const type = o.type
-			if (type == 'textarea') { ret[n] = d[n] != null ? escapeHtml(d[n], { br: true }).replace(/\r?\n/g, '<br>') : '' }
+			if (type == 'textarea') { ret[n] = v != null ? escapeHtml(v, { br: true }).replace(/\r?\n/g, '<br>') : '' }
 			else {
-				if (MULTI.has(type)) { ret[n] = d[n].substring(1, d[n].length - 1).split(',').map(x => x.toString()) }
-				else { ret[n] = d[n]?.toString() }
+				if (MULTI.has(type)) { ret[n] = v.substring(1, v.length - 1).split(',').map(x => x.toString()) }
+				else { ret[n] = v?.toString() }
 				if (label && LABELED.has(type)) {
 					ret[n] = this.labeledValue(n, ret[n])
 				}
