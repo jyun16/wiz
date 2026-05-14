@@ -1,4 +1,5 @@
 import path from 'path'
+import { isNull, isEmpty, isNumber, isString } from './index.js'
 import { p, caller } from './debug.js'
 
 const Self = class {
@@ -69,6 +70,12 @@ const Self = class {
 	true(v, label = '') { this.eq(v, true, label, 3) }
 	false(v, label = '') { this.eq(v, false, label, 3) }
 	pass(label = '') { this.true(true, label) }
+	isString(v, label = '') { this.true(isString(v), label) }
+	isNumber(v, label = '') { this.true(isNumber(v), label) }
+	isNull(v, label = '') { this.true(isNull(v), label) }
+	isNotNull(v, label = '') { this.true(!isNull(v), label) }
+	isEmpty(v, label = '') { this.true(isEmpty(v), label) }
+	isNotEmpty(v, label = '') { this.true(!isEmpty(v), label) }
 	print(v1, v2, label, ok = false, depth = 2) {
 		if (Self.noPrint) return
 		const line = caller(depth).split(':').pop()

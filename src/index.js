@@ -78,6 +78,8 @@ export function isObject(v) { return _.isPlainObject(v) }
 
 export function isInstance(v) { return(!!v) && v.constructor === Object }
 
+export function isNumber(v) { return /^\d+$/.test(v) }
+
 export function isMap(v) { return _.isMap(v) }
 
 export function includes(t, v, i) { return _.includes(t, v, i) }
