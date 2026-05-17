@@ -1,6 +1,17 @@
 import path from 'path'
+import { fileURLToPath } from 'url'
 import { isNull, isEmpty, isNumber, isString } from './index.js'
 import { p, caller } from './debug.js'
+
+const SELF = fileURLToPath(import.meta.url)
+
+function stackFile(s) {
+	const m = s.trim().match(/\(?(.+):(\d+):(\d+)\)?$/)
+	if (!m) return null
+	let file = m[1].replace(/^at .* \(/, '').replace(/^at /, '')
+	if (file.startsWith('file://')) file = fileURLToPath(file)
+	return { file, line: m[2], col: m[3] }
+}
 
 const Self = class {
 
@@ -33,17 +44,19 @@ const Self = class {
 			}
 		}
 	}
-  _chk(v1, v2, op, label, depth) {
+  _chk(v1, v2, op, label) {
     if (typeof v1 == 'object' && v1 !== null) {
       v1 = JSON.stringify(v1)
       v2 = JSON.stringify(v2)
     }
-    this.print(v1, v2, label, op(v1, v2), depth)
+    this.print(v1, v2, label, op(v1, v2))
   }
-	eq(v1, v2, label = '', depth=3) { this._chk(v1, v2, (a, b) => a == b, label, depth) }
-  ne(v1, v2, label = '', depth=3) { this._chk(v1, v2, (a, b) => a != b, label, depth) }
-	include(v1, v2, label = '', depth=3) { this.print(v1, v2, label, this._chkInclude(v1, v2), depth) }
-  exclude(v1, v2, label = '', depth=3) { this.print(v1, v2, label, !this._chkInclude(v1, v2), depth) }
+	eq(v1, v2, label = '') { this._chk(v1, v2, (a, b) => a == b, label) }
+	ne(v1, v2, label = '') { this._chk(v1, v2, (a, b) => a != b, label) }
+	true(v, label = '') { this.eq(v, true, label) }
+	false(v, label = '') { this.eq(v, false, label) }
+	include(v1, v2, label = '') { this.print(v1, v2, label, this._chkInclude(v1, v2)) }
+  exclude(v1, v2, label = '') { this.print(v1, v2, label, !this._chkInclude(v1, v2)) }
   _chkInclude(v1, v2) {
     if (typeof v1 == 'string' || Array.isArray(v1)) {
       return v2 != null && v2.includes(v1)
@@ -56,19 +69,17 @@ const Self = class {
 	_html(s) {
     return s.replace(/>\s+</g, '><').replace(/\s{2,}/g, ' ').trim()
   }
-	html(v1, v2, label = '', depth=3) {
-    this.print(v1, v2, label, this._html(v1) == this._html(v2), depth)
+	html(v1, v2, label = '') {
+    this.print(v1, v2, label, this._html(v1) == this._html(v2))
   }
-	ceq(v1, v2, label = '', depth) {
+	ceq(v1, v2, label = '') {
 		v1 = this.strip(v1)
 		v2 = this.strip(v2)
-		this.print(v1, v2, label, v1 == v2, depth)
+		this.print(v1, v2, label, v1 == v2)
 	}
-	re(v1, v2, label = '', depth) {
-		this.print(v1, v2, label, v2.test(v1), depth)
+	re(v1, v2, label = '') {
+		this.print(v1, v2, label, v2.test(v1))
 	}
-	true(v, label = '') { this.eq(v, true, label, 3) }
-	false(v, label = '') { this.eq(v, false, label, 3) }
 	pass(label = '') { this.true(true, label) }
 	isString(v, label = '') { this.true(isString(v), label) }
 	isNumber(v, label = '') { this.true(isNumber(v), label) }
@@ -76,9 +87,19 @@ const Self = class {
 	isNotNull(v, label = '') { this.true(!isNull(v), label) }
 	isEmpty(v, label = '') { this.true(isEmpty(v), label) }
 	isNotEmpty(v, label = '') { this.true(!isEmpty(v), label) }
-	print(v1, v2, label, ok = false, depth = 2) {
+	testCaller() {
+		for (const s of new Error().stack.split('\n').slice(1)) {
+			const c = stackFile(s)
+			if (!c) continue
+			if (c.file == SELF) continue
+			if (c.file.startsWith('node:')) continue
+			return c
+		}
+		return { file: '', line: '', col: '' }
+	}
+	print(v1, v2, label, ok = false) {
 		if (Self.noPrint) return
-		const line = caller(depth).split(':').pop()
+		const { line } = this.testCaller()
 		this.count++
 		if (label == '') {
 			label = `test ${this.count}`

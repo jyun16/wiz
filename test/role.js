@@ -13,8 +13,8 @@ const hasTest = () => {
 	role.remove('crud.delete')
 	t.false(role.has('crud.delete'))
 	role = new Role([
-		'crud.@all',
-		'crud.!upsert',	
+		'crud.all',
+		'crud.~upsert',	
 	])
 	t.true(role.has('crud.hoge'))
 	t.false(role.has('crud.upsert'))
@@ -31,37 +31,37 @@ const hasTest = () => {
 	t.false(role.has('user.edit'))
 
 	role = new Role([
-		'user.@all',	
+		'user.all',	
 	])
 	t.true(role.has('user.edit'))
 	t.true(role.has('user.edit.delete'))
 }
 const addTest = () => {
 	let role = new Role()
-	role.add('user.@all')
-	t.eq(role.conf, { user: { '@all': true } })
+	role.add('user.all')
+	t.eq(role.conf, { user: { 'all': true } })
 	role.add('user.index')
 	t.eq(role.conf, { user: { index: true } })
 	role.add('user.edit.upsert')
 	t.eq(role.conf, { user: { index: true, edit: { upsert: true } } })
-	role.add('user.edit.@all')
-	t.eq(role.conf, { user: { index: true, edit: { '@all': true } } })
+	role.add('user.edit.all')
+	t.eq(role.conf, { user: { index: true, edit: { 'all': true } } })
 	role.remove('user.index')
-	t.eq(role.conf, { user: { edit: { '@all': true } } })
+	t.eq(role.conf, { user: { edit: { 'all': true } } })
 	role.remove('user.edit')
 	t.eq(role.conf, {})
 
 	role = new Role()
 	role.add('user.edit.upsert')
 	t.eq(role.conf, { user: { edit: { upsert: true } } })
-	role.add('user.edit.@all')
-	t.eq(role.conf, { user: { edit: { '@all': true } } })
+	role.add('user.edit.all')
+	t.eq(role.conf, { user: { edit: { 'all': true } } })
 
 	role.add('user.edit.~delete')
 	t.true(role.has('user.edit.upsert'))
 
 	t.false(role.has('user.edit.delete'))
-	t.eq(role.conf, { user: { edit: { '@all': true, '~delete': true } } })
+	t.eq(role.conf, { user: { edit: { 'all': true, '~delete': true } } })
 
 	role.add('user.edit.upsert')
 	role.remove('user.edit.upsert')
@@ -75,5 +75,5 @@ const addTest = () => {
 	t.false(role.has('foo,bar'))
 }
 
-// hasTest()
-addTest()
+hasTest()
+// addTest()

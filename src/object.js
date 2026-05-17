@@ -1,14 +1,95 @@
-import _ from 'lodash'
-import { equal, isString, isObject, array2obj } from './index.js'
+import { equal, isNull, isEmpty, isString, isObject, deepClone } from './index.js'
 
 const splitPath = key => typeof key === 'string' ? key.replace(/\[(\w+)\]/g, '.$1').split('.') : key
 
-export function cleanObj(obj) {
-	return Object.fromEntries(
-		Object.entries(obj)
-			.map(([k, v]) => [k, v && typeof v === 'object' && !Array.isArray(v) ? cleanObj(v) : v])
-			.filter(([_, v]) => v != null)
-	)
+export function objTrim(o) {
+	for (const k in o) if (isEmpty(o[k])) delete o[k]
+	return o
+}
+
+export function objTrimCopy(o) {
+	const ret = {}
+	for (const k in o) if (!isEmpty(o[k])) ret[k] = o[k]
+	return ret
+}
+
+export function objTrimDeep(o) {
+	for (const k in o) {
+		if (isObject(o[k])) objTrimDeep(o[k])
+		if (isEmpty(o[k])) delete o[k]
+	}
+	return o
+}
+
+export function objTrimDeepCopy(o) {
+	return objTrimDeep(deepClone(o))
+}
+
+export function objCompact(o) {
+	for (const k in o) if (isNull(o[k])) delete o[k]
+	return o
+}
+
+export function objCompactCopy(o) {
+	const ret = {}
+	for (const k in o) if (!isNull(o[k])) ret[k] = o[k]
+	return ret
+}
+
+export function objCompactDeep(o) {
+	for (const k in o) {
+		if (isObject(o[k])) objCompactDeep(o[k])
+		if (isNull(o[k])) delete o[k]
+	}
+	return o
+}
+
+export function objCompactDeepCopy(o) {
+	return objCompactDeep(deepClone(o))
+}
+
+export function objMap(o, fn) {
+	const ret = {}
+	for (const k in o) ret[k] = fn(k, o[k])
+	return ret
+}
+
+export function objFilter(o, fn) {
+	const ret = {}
+	for (const k in o) if (fn(k, o[k])) ret[k] = o[k]
+	return ret
+}
+
+export function objPick(o, keys) {
+	const ret = {}
+	for (const k of keys) if (k in o) ret[k] = o[k]
+	return ret
+}
+
+export function objOmit(o, keys) {
+	const ks = Array.isArray(keys) ? Object.fromEntries(keys.map(k => [ k, true ])) : { [keys]: true }
+	return Object.fromEntries(Object.entries(o).filter(([ k ]) => !ks[k]))
+}
+
+export function objOmitSelf(o, keys) {
+	for (const k of Array.isArray(keys) ? keys : [ keys ]) delete o[k]
+	return o
+}
+
+export function objDelete(o, key) {
+	if (isString(key) && /[.[\]]/.test(key)) return objDeletePath(o, key)
+	delete o[key]
+	return o
+}
+
+export function objDeleteByVal(o, value) {
+	for (const k in o) {
+		if (o[k] === value) {
+			delete o[k]
+			return k
+		}
+	}
+	return null
 }
 
 export function objKeys(o) {
@@ -34,46 +115,6 @@ export function objDeepFreeze(o = {}) {
 	return Object.freeze(o)
 }
 
-export function objPick(obj, keys) {
-	return keys.reduce((res, k) => (k in obj && (res[k] = obj[k]), res), {})
-}
-
-export function objMap(o, fn) {
-	return Object.fromEntries(Object.entries(o).map(([k, v]) => [k, fn(k, v)]))
-}
-
-export function objFilter(obj, keys) {
-	const res = { ...obj }
-	for (const k of keys) delete res[k]
-	return res
-}
-
-export function objRemoveEmpty(o) {
-	const ret = { ...o }
-	for (const k in ret) if (ret[k] == null || ret[k] === '') delete ret[k]
-	return ret
-}
-
-export function objTrim(o) {
-	for (const k in o) if (o[k] == null || o[k] === '') delete o[k]
-	return o
-}
-
-export function objDeleteByVal(obj, value) {
-	for (const k in obj) {
-		if (obj[k] === value) {
-			delete obj[k]
-			return k
-		}
-	}
-	return null
-}
-
-export function objOmit(obj, keys) {
-	const ks = Array.isArray(keys) ? Object.fromEntries(keys.map(k => [k, true])) : { [keys]: true }
-	return Object.fromEntries(Object.entries(obj).filter(([k]) => !ks[k]))
-}
-
 export function objFlatten(o, prefix = '') {
 	return Object.entries(o).reduce((res, [k, v]) => {
 		const key = prefix ? `${prefix}.${k}` : k
@@ -83,18 +124,10 @@ export function objFlatten(o, prefix = '') {
 	}, {})
 }
 
-export function objCompact(o) {
-	for (const k in o) {
-		if (o[k] && typeof o[k] === 'object') objCompact(o[k])
-		if (o[k] == null || o[k] === '') delete o[k]
-	}
-	return o
-}
-
 export function objMerge(target, ...sources) {
 	for (const source of sources) {
 		for (const k in source) {
-			if (source[k] instanceof Object && !Array.isArray(source[k])) {
+			if (isObject(source[k])) {
 				Object.assign(target[k] || (target[k] = {}), objMerge(target[k] || {}, source[k]))
 			}
 			else {
@@ -105,12 +138,12 @@ export function objMerge(target, ...sources) {
 	return target
 }
 
-export function objDiff(keys, obj, old) {
+export function objDiff(keys, o, old) {
 	const created = {}
 	const changed = {}
 	const removed = {}
 	for (const path of keys) {
-		const val = objGet(obj, path)
+		const val = objGet(o, path)
 		const prev = objGet(old, path)
 		if (val !== undefined && prev === undefined) {
 			created[path] = val
@@ -131,8 +164,8 @@ export function objSwap(map) {
 	return ret
 }
 
-export function objSortByVal(obj, desc = false) {
-	const entries = Object.entries(obj)
+export function objSortByVal(o, desc = false) {
+	const entries = Object.entries(o)
 	return Object.fromEntries(entries.sort(([, x], [, y]) => desc ? y - x : x - y))
 }
 
@@ -144,14 +177,14 @@ export function objSlice(a, offset, limit) {
 	return Object.fromEntries(Object.entries(a).slice(offset, offset + limit))
 }
 
-export function objSliceVal(obj, key, start, end) {
-	const arr = objGet(obj, key)
+export function objSliceVal(o, key, start, end) {
+	const arr = objGet(o, key)
 	if (!Array.isArray(arr)) throw new Error(`Value at "${key}" is not an array`)
 	return arr.slice(start, end)
 }
 
-export function objSpliceVal(obj, key, start, deleteCount, ...items) {
-	const arr = objGet(obj, key)
+export function objSpliceVal(o, key, start, deleteCount, ...items) {
+	const arr = objGet(o, key)
 	if (!Array.isArray(arr)) throw new Error(`Value at "${key}" is not an array`)
 	return arr.splice(start, deleteCount, ...items)
 }
@@ -167,9 +200,9 @@ export function objMixin(target, mixins) {
 }
 
 // object access by path
-export function objHas(obj, key) {
+export function objHas(o, key) {
 	const path = splitPath(key)
-	let cur = obj
+	let cur = o
 	for (const k of path) {
 		if (cur == null || typeof cur !== 'object' || !(k in cur)) return false
 		cur = cur[k]
@@ -177,13 +210,13 @@ export function objHas(obj, key) {
 	return true
 }
 
-export function objGet(obj, key) {
-	return splitPath(key).reduce((o, k) => (o || {})[k], obj)
+export function objGet(o, key) {
+	return splitPath(key).reduce((o, k) => (o || {})[k], o)
 }
 
-export function objSet(obj, key, value) {
+export function objSet(o, key, value) {
 	const path = splitPath(key)
-	let cur = obj
+	let cur = o
 	for (let i = 0; i < path.length; i++) {
 		const k = path[i]
 		if (i === path.length - 1) {
@@ -194,18 +227,19 @@ export function objSet(obj, key, value) {
 			cur = cur[k]
 		}
 	}
-	return obj
+	return o
 }
 
-export function objDelete(obj, key) {
+export function objDeletePath(o, key) {
 	const path = splitPath(key)
-	let cur = obj
+	let cur = o
 	for (let i = 0; i < path.length - 1; i++) {
 		const k = path[i]
-		if (cur == null || typeof cur !== 'object' || !(k in cur)) return
+		if (cur == null || typeof cur !== 'object' || !(k in cur)) return o
 		cur = cur[k]
 	}
 	delete cur[path[path.length - 1]]
+	return o
 }
 
 function _objKeysDeep(ret, map, pk) {
@@ -223,12 +257,12 @@ export function objKeysDeep(map) {
 	return ret
 }
 
-export function objDumpJS(obj, tab = 0, opts = {}) {
-	const o = objMerge({ quote: "'" }, opts)
-	return `${'\t'.repeat(tab)}{${_objDumpJS(obj, ++tab, o).replace(/^{/, '')}`
+export function objDumpJS(o, tab = 0, opts = {}) {
+	const _o = objMerge({ quote: "'" }, opts)
+	return `${'\t'.repeat(tab)}{${_objDumpJS(o, tab + 1, _o).replace(/^{/, '')}`
 }
 
-function _objDumpJS(obj, tab, opts) {
+function _objDumpJS(o, tab, opts) {
 	const dumpKey = k => /^[a-zA-Z_$][a-zA-Z_$0-9]*$/.test(k) ? k : `${opts.quote}${k}${opts.quote}`
 	const dumpVal = v => {
 		if (typeof v === 'string') return `${opts.quote}${v}${opts.quote}`
@@ -236,19 +270,19 @@ function _objDumpJS(obj, tab, opts) {
 		if (typeof v === 'object' && v !== null) return _objDumpJS(v, tab + 1, opts)
 		return String(v)
 	}
-	const entries = Object.entries(obj).map(([k, v]) => `${'\t'.repeat(tab)}${dumpKey(k)}: ${dumpVal(v)}`)
+	const entries = Object.entries(o).map(([k, v]) => `${'\t'.repeat(tab)}${dumpKey(k)}: ${dumpVal(v)}`)
 	return `{\n${entries.join(',\n')}\n${'\t'.repeat(Math.max(tab - 1, 0))}}`
 }
 
-export function objAddCount(obj, key) {
+export function objAddCount(o, key) {
 	const r = {}
-	if (!(key in obj)) {
-		for (const k in obj) r[k] = obj[k] + 1
+	if (!(key in o)) {
+		for (const k in o) r[k] = o[k] + 1
 		r[key] = 0
 		return r
 	}
-	if (obj[key] > 0) return obj
-	r[key] = obj[key] + 1
-	for (const k in obj) if (k !== key) r[k] = obj[k] <= r[key] ? 0 : obj[k]
+	if (o[key] > 0) return o
+	r[key] = o[key] + 1
+	for (const k in o) if (k !== key) r[k] = o[k] <= r[key] ? 0 : o[k]
 	return objSortByVal(r, true)
 }

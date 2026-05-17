@@ -1,4 +1,4 @@
-import { d, dd, isEmpty, isString, isArray, instanceName, objPick, deepClone, equal, uc, hash, includes, Validator } from '../index.js'
+import { d, dd, isEmpty, isString, isArray, instanceName, objMap, deepClone, equal, uc, hash, includes, Validator } from '../index.js'
 import { escapeHtml, q2f, q2w } from './utils.js'
 
 const MULTI = new Set([ 'checkbox', 'rich-select' ])
@@ -17,11 +17,41 @@ class Self {
 	}
 	get() { return this.p }
 	set(p) {
-		this.p = objPick(p, Object.keys(this.conf))
+		this.p = this.normalizeAll(p)
 		this.v.reset()
+		return this.p
 	}
-	reset() { this.set({}) }
-	val(...args) { return this.t.val(...args) }
+	normalize(n, v) {
+		const o = this.conf[n]
+		if (v == null) return v
+		if (MULTI.has(o.type)) {
+			if (isArray(v)) return v.map(x => x.toString())
+			if (isString(v)) {
+				if (v[0] == '[') return JSON.parse(v).map(x => x.toString())
+				if (v[0] == ',') return v.substring(1, v.length - 1).split(',').filter(x => x != '').map(x => x.toString())
+				return [ v.toString() ]
+			}
+			return [ v.toString() ]
+		}
+		if (o.type == 'textarea') return v
+		return v?.toString()
+	}
+	normalizeAll(p={}) {
+		const conf = this.conf
+		return objMap(p, (n, v) => {
+			if (p == 'id') return v
+			return this.normalize(n, v)
+		})
+
+		// const ret = {}
+		// if ('id' in p) ret.id = p.id
+		// for (const n in this.conf) {
+		// 	if (!(n in p)) continue
+		// 	ret[n] = this.normalize(n, p[n])
+		// }
+		// return ret
+	}
+	reset() { this.p = {} }
 	mode(mode) {
 		for (const n in this.conf) {
 			const o = this.conf[n]
@@ -33,82 +63,35 @@ class Self {
 			}
 		}
 	}
-	toDetail() {
-		const conf = this.conf
-		const p = this.p
+	toDB(p) {
+		if (p) { p = this.normalizeAll(p) }
+		else { p = this.p }
 		const ret = {}
-		for (const n in p) {
+		for (const n in this.conf) {
 			if (!(n in p)) continue
-			const v = p[n]
-			const o = conf[n]
-			const type = o.type
-			if (type == 'textarea') { ret[n] = v != null ? escapeHtml(v, { br: true }).replace(/\r?\n/g, '<br>') : '' }
-			else if (LABELED.has(type)) { ret[n] = this.labeledValue(n, v) }
-			else { ret[n] = v }
-		}
-		return ret
-	}
-	toDB() {
-		const conf = this.conf
-		const p = this.p
-		const ret = {}
-		for (const n in conf) {
-			if (!(n in p)) continue
-			const v = p[n]
-			const o = conf[n]
+			const o = this.conf[n]
 			if (o.skipDB) continue
-			if (MULTI.has(o.type)) {
-				if (isString(v)) { v = JSON.parse(v) }
-				ret[n] = `,${v.join(',')},`
-			}
-			else {
-				if (o.hash) ret[n] = hash(v, o.hash)
-				else ret[n] = v
-			}
+			let v = p[n]
+			if (MULTI.has(o.type)) ret[n] = `,${v.join(',')},`
+			else ret[n] = o.hash ? hash(v, o.hash) : v
 		}
 		return ret
 	}
-	fromDB(d, label=false) {
-		const conf = this.conf
-		const ret = {}
-		for (const n in conf) {
-			if (!(n in d)) continue
-			const v = d[n]
-			const o = conf[n]
-			if (n == 'id') { ret.id = d.id; continue }
-			const type = o.type
-			if (type == 'textarea') { ret[n] = v }
-			else {
-				if (MULTI.has(type)) { ret[n] = v?.substring(1, v.length - 1).split(',').map(x => x.toString()) }
-				else { ret[n] = v?.toString() }
-				if (label && LABELED.has(type)) { ret[n] = this.labeledValue(n, ret[n]) }
-			}
+	toDetail(p) {
+		if (p) { p = this.normalizeAll(p) }
+		else { p = this.p }
+		const ret = { id: p.id }
+		for (const n in p) {
+			const o = this.conf[n]
+			if (!o) continue
+			const v = p[n]
+			if (o.type == 'textarea') ret[n] = v != null ? escapeHtml(v, { br: true }).replace(/\r?\n/g, '<br>') : ''
+			else if (LABELED.has(o.type)) ret[n] = this.labeledValue(n, v)
+			else ret[n] = v
 		}
-		this.p = ret
 		return ret
 	}
-	detailFromDB(d, label=true) {
-		const conf = this.conf
-		const ret = {}
-		for (const n in conf) {
-			if (!(n in d)) continue
-			if (n == 'id') { ret.id = d.id; continue }
-			const v = d[n]
-			const o = conf[n]
-			const type = o.type
-			if (type == 'textarea') { ret[n] = v != null ? escapeHtml(v, { br: true }).replace(/\r?\n/g, '<br>') : '' }
-			else {
-				if (MULTI.has(type)) { ret[n] = v.substring(1, v.length - 1).split(',').map(x => x.toString()) }
-				else { ret[n] = v?.toString() }
-				if (label && LABELED.has(type)) {
-					ret[n] = this.labeledValue(n, ret[n])
-				}
-			}
-		}
-		this.p = ret
-		return ret
-	}
-	listFromDB(list, label=true) { return list.map(d => this.detailFromDB(d, label)) }
+	listFromDB(list) { return list.map(d => this.toDetail(d)) }
 	fields() {
 		const ret = {}
 		for (const f in this.conf) {

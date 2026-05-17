@@ -1,4 +1,4 @@
-import { isEmpty, isArray, isObject, isString, split, objGet, objSet, objHas, objDelete } from './index.js'
+import { isEmpty, isArray, isObject, isString, split, objGet, objSet, objHas, objDeletePath } from './index.js'
 
 /*
 
@@ -69,17 +69,17 @@ const Self = class {
 			return
 		}
 		else if (!/^\~/.test(leaf) && objHas(this.conf, akey.join('.') + '.all')) {
-			objDelete(this.conf, akey.join('.') + '.all')
+			objDeletePath(this.conf, akey.join('.') + '.all')
 		}
 		objSet(this.conf, key, true)
 	}
 	remove(key) {
-		objDelete(this.conf, key)
+		objDeletePath(this.conf, key)
 		const akey = split(key, '.')
 		akey.pop()
 		const pkey = akey.join('.')
 		if (isEmpty(objGet(this.conf, pkey))) {
-			objDelete(this.conf, pkey)
+			objDeletePath(this.conf, pkey)
 		}
 	}
 	_has(key) {

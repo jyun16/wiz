@@ -1,5 +1,5 @@
 import sanitizeHtml from 'sanitize-html'
-import { includes, cleanObj } from '../index.js'
+import { includes, objCompact } from '../index.js'
 import jsObj from '../jsobj.js'
 
 export function urlBase(url) {
@@ -30,7 +30,7 @@ export function parseQuery(url) {
 }
 
 export function buildQuery(p) {
-	p = cleanObj(p)
+	objCompact(p)
 	const r = []
 	for (const k in p) {
 		const v = p[k]
@@ -46,7 +46,7 @@ export function buildQuery(p) {
 }
 
 export function appendQuery(url, p = {}) {
-	p = cleanObj(p)
+	objCompact(p)
 	const h = url.indexOf('#')
 	const hash = h === -1 ? '' : url.slice(h)
 	const u = h === -1 ? url : url.slice(0, h)
@@ -99,14 +99,14 @@ export const safeTags = {
 }
 
 export function q2f(q) {
-	q = cleanObj(q)
+	objCompact(q)
   let ret = q.f || '*'
   if (q.f && isArray(q.f)) ret = q.f.join(',')
   return ret
 }
 
 export function q2w(q) {
-	q = cleanObj(q)
+	objCompact(q)
   const ret = q.w ? jsObj.parse(q.w) : {}
   ret['-limit'] = q.l > 100 ? 100 : (q.l || 10)
   ret['-offset'] = (q.p - 1|| 0) * ret['-limit']

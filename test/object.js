@@ -71,7 +71,7 @@ const m1 = { a: 1, b: { x: 1 } }
 const m2 = { b: { y: 2 }, c: 3 }
 t.eq({ a: 1, b: { x: 1, y: 2 }, c: 3 }, objMerge({}, m1, m2))
 
-t.eq({ a: 1, b: { c: 2 } }, objCompact({ a: 1, b: { c: 2, d: '' }, e: null }))
+t.eq({ a: 1, b: { c: 2 } }, objTrimDeep({ a: 1, b: { c: 2, d: '' }, e: null }))
 
 const cloneOri = { a: { b: 1 } }
 const cloned = objClone(cloneOri)
