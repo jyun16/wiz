@@ -38,18 +38,12 @@ class Self {
 	}
 	normalizeAll(p={}) {
 		const conf = this.conf
-		return objMap(p, (n, v) => {
-			if (p == 'id') return v
-			return this.normalize(n, v)
-		})
-
-		// const ret = {}
-		// if ('id' in p) ret.id = p.id
-		// for (const n in this.conf) {
-		// 	if (!(n in p)) continue
-		// 	ret[n] = this.normalize(n, p[n])
-		// }
-		// return ret
+		const ret = { id: p?.id }
+		for (const n in this.conf) {
+			if (!(n in p)) continue
+			ret[n] = this.normalize(n, p[n])
+		}
+		return ret
 	}
 	reset() { this.p = {} }
 	mode(mode) {
