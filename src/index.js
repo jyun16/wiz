@@ -51,9 +51,10 @@ export function rand(min, max) {
 }
 
 export function range(start, end, step = 1) {
-  if (end === undefined) [start, end] = [0, start-1]
-  const len = Math.floor((end - start) / step) + 1
-  return Array.from({ length: len }, (_, i) => start + i * step)
+	if (end === undefined) [ start, end ] = [ 0, start - 1 ]
+	if (step == 0) return []
+	const len = Math.floor((end - start) / step) + 1
+	return len > 0 ? Array.from({ length: len }, (_, i) => start + i * step) : []
 }
 
 export function deepClone(v) { return _.cloneDeep(v) }

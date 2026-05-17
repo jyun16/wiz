@@ -1,3 +1,5 @@
+import { isEmpty } from './index.js'
+
 export function array2obj(a) {
 	return Object.fromEntries(a.map(v => [v, true]))
 }
@@ -10,17 +12,21 @@ export function arrayConcat(a1, a2) {
 	return [...a1, ...a2]
 }
 
-export function arrayRange(start, end, step = 1) {
-	return Array.from({ length: Math.floor((end - start) / step) + 1 }, (_, i) => start + i * step)
+export function arrayChoice(a) {
+	return a[Math.floor(Math.random() * a.length)]
 }
 
-export function arrayChoice(a) {
-  return a[Math.floor(Math.random() * a.length)]
+export function arrayShuffle(a) {
+	a = [ ...a ]
+	for (let i = a.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1))
+		;[ a[i], a[j] ] = [ a[j], a[i] ]
+	}
+	return a
 }
 
 export function arrayRandomPick(a) {
-  const n = Math.floor(Math.random() * a.length) + 1
-  return [...a].sort(() => Math.random() - 0.5).slice(0, n)
+	return arrayShuffle(a).slice(0, Math.floor(Math.random() * a.length) + 1)
 }
 
 export function arrayPick(a, key) {
@@ -28,6 +34,10 @@ export function arrayPick(a, key) {
 }
 
 export function arrayTrim(a) {
+	return a.filter(v => !isEmpty(v))
+}
+
+export function arrayTrimStr(a) {
 	return a.map(v => v.trim())
 }
 
@@ -41,13 +51,12 @@ export function arrayMove(a, from, to) {
 }
 
 export function arrayRemove(a, v) {
-	const i = a.indexOf(v)
-	if (i !== -1) a.splice(i, 1)
+	for (let i = a.length - 1; i >= 0; i--) if (a[i] === v) a.splice(i, 1)
 	return a
 }
 
 export function arrayWrap(v) {
-	return Array.isArray(v) ? v : [v]
+	return v == null ? [] : Array.isArray(v) ? v : [ v ]
 }
 
 export function arraySlice(a, offset, limit) {
@@ -86,14 +95,15 @@ export function arrayDiff(a1, a2) {
 }
 
 export function arrayable(that) {
+	const isIndex = prop => typeof prop == 'string' && /^\d+$/.test(prop)
 	return new Proxy(that, {
 		get(self, prop) {
-			if (!isNaN(prop)) return self.list[prop]
+			if (isIndex(prop)) return self.list[prop]
 			if (prop === 'length') return self.list.length
 			return self[prop]
 		},
 		set(self, prop, value) {
-			if (!isNaN(prop)) {
+			if (isIndex(prop)) {
 				self.list[Number(prop)] = value
 				return true
 			}
