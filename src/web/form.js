@@ -45,7 +45,11 @@ class Self {
 		}
 		return ret
 	}
-	reset() { this.p = {} }
+	reset() {
+		this.p = {}
+		this.resetValidation()
+	}
+	resetValidation() { this.v.reset() }
 	mode(mode) {
 		for (const n in this.conf) {
 			const o = this.conf[n]
@@ -117,7 +121,6 @@ class Self {
 		if (target && isArray(target)) target = new Set(target)
 		return target
 	}
-	resetValidation() { this.v.reset() }
 	validation(...target) {
 		const conf = this.conf
 		const p = this.p
