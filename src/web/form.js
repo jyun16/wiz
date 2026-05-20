@@ -70,6 +70,7 @@ class Self {
 			const o = this.conf[n]
 			if (o.skipDB) continue
 			let v = p[n]
+			if (isEmpty(v)) continue
 			if (MULTI.has(o.type)) ret[n] = `,${v.join(',')},`
 			else ret[n] = o.hash ? hash(v, o.hash) : v
 		}
