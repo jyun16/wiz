@@ -1,5 +1,6 @@
 import { d, dd, isEmpty, isString, isArray, instanceName, objMap, deepClone, equal, uc, hash, includes, Validator } from '../index.js'
 import { escapeHtml, q2f, q2w } from './utils.js'
+import { VALID_ARRAY_ARGS } from '../validation.js'
 
 const MULTI = new Set([ 'checkbox', 'rich-select' ])
 const LABELED = new Set([ 'select', 'radio', 'checkbox', 'rich-select' ])
@@ -68,7 +69,7 @@ class Self {
 		for (const n in this.conf) {
 			if (!(n in p)) continue
 			const o = this.conf[n]
-			if (o.skipDB) continue
+			if (o?.db?.skip) continue
 			let v = p[n]
 			if (isEmpty(v)) continue
 			if (MULTI.has(o.type)) ret[n] = `,${v.join(',')},`
@@ -130,14 +131,14 @@ class Self {
 			const o = conf[n]
 			if (!o.valids) continue
 			if (target && !target?.has(n)) continue
-			for (let vn of o.valids) {
+			for (let vn in o.valids) {
 				if (this.errors[n]) break
 				let va = []
-				if (isArray(vn)) {
-					va = deepClone(vn)
-					vn = va.shift()
-					if (vn == 'equal') va[0] = p[va[0]]
+				if (VALID_ARRAY_ARGS.has(vn)) {
+					const _va = o.valids[vn]
+					va = isArray(_va) ? _va : [ _va ]
 				}
+				if (vn == 'equal') va[0] = p[o.valids[vn]]
 				this.v.call(vn, n, p[n], ...va)
 			}
 		}

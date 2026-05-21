@@ -1,5 +1,7 @@
 import { trim, equal, compare, isEmpty } from './index.js'
 
+export const VALID_ARRAY_ARGS = new Set([ 'min', 'max', 'inList' ])
+
 const self = {
 	required: v => !isEmpty(trim(v)),
 	requiredChoice: v => Array.isArray(v) ? v.length > 0 : !!v,
