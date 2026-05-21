@@ -103,7 +103,7 @@ class Self {
 		const o = this.conf[n]
 		return o.label ? o.label : uc(n)
 	}
-	optionLabel(n, value) { return this.conf[n].opts[value] }
+	optionLabel(n, value) { return this.conf[n].opts[value] ?? '' }
 	skip4html(type) { return type == 'db' }
 	labeledValue(n, v) {
 		if (isArray(v)) { return v.map(x => this.optionLabel(n, x)) }
