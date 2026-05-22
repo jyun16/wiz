@@ -52,8 +52,10 @@ class Self {
 	}
 	resetValidation() { this.v.reset() }
 	mode(mode) {
-		for (const n in this.conf) {
-			const o = this.conf[n]
+		if (!this._conf) this._conf = deepClone(this.conf)
+		const conf = deepClone(this._conf)
+		for (const n in conf) {
+			const o = conf[n]
 			if (o.hide && includes(o.hide, mode)) {
 				delete this.o[n]
 			}
@@ -61,6 +63,7 @@ class Self {
 				delete this.conf[n]
 			}
 		}
+		this.conf = conf
 	}
 	toDB(p) {
 		if (p) { p = this.normalizeAll(p) }
