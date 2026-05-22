@@ -22,6 +22,62 @@ class Self {
 		this.v.reset()
 		return this.p
 	}
+	mode(mode) {
+		if (mode) this._mode = mode
+		return this._mode
+	}
+	isShow(n) {
+		const o = this.conf[n]
+		if (!o.type) return false
+		if (o.show === false) return false
+		if (o.show && !includes(o.show, this._mode)) return false
+		return true
+	}
+	isDB(n) {
+		const o = this.conf[n]
+		if (o.db == 'skip') return false
+		if (o.pk) return false
+		return true
+	}
+	fields() {
+		const ret = {}
+		for (const n in this.conf) {
+			if (!this.isShow(n)) continue
+			ret[n] = this.label(n)
+		}
+		return ret
+	}
+	toDB(p) {
+		if (p) { p = this.normalizeAll(p) }
+		else { p = this.p }
+		const ret = {}
+		for (const n in this.conf) {
+			if (!(n in p)) continue
+			const o = this.conf[n]
+			if (!this.isDB(n)) continue
+			let v = p[n]
+			if (isEmpty(v)) continue
+			if (MULTI.has(o.type)) ret[n] = `,${v.join(',')},`
+			else ret[n] = o.hash ? hash(v, o.hash) : v
+		}
+		return ret
+	}
+	toDetail(p) {
+		if (p) { p = this.normalizeAll(p) }
+		else { p = this.p }
+		const ret = { id: p.id }
+		for (const n in p) {
+			const o = this.conf[n]
+			if (!o) continue
+			if (!this.isShow(n)) continue
+			const v = p[n]
+			if (o.type == 'textarea') ret[n] = v != null ? escapeHtml(v, { br: true }).replace(/\r?\n/g, '<br>') : ''
+			else if (LABELED.has(o.type)) ret[n] = this.labeledValue(n, v)
+			else ret[n] = v
+		}
+		return ret
+	}
+	listFromDB(list) { return list.map(d => this.toDetail(d)) }
 	normalize(n, v) {
 		const o = this.conf[n]
 		if (v == null) return v
@@ -51,58 +107,6 @@ class Self {
 		this.resetValidation()
 	}
 	resetValidation() { this.v.reset() }
-	mode(mode) {
-		if (!this._conf) this._conf = deepClone(this.conf)
-		const conf = deepClone(this._conf)
-		for (const n in conf) {
-			const o = conf[n]
-			if (o.hide && includes(o.hide, mode)) {
-				delete this.o[n]
-			}
-			else if (o.show && !includes(o.show, mode)) {
-				delete this.conf[n]
-			}
-		}
-		this.conf = conf
-	}
-	toDB(p) {
-		if (p) { p = this.normalizeAll(p) }
-		else { p = this.p }
-		const ret = {}
-		for (const n in this.conf) {
-			if (!(n in p)) continue
-			const o = this.conf[n]
-			if (o?.db?.skip) continue
-			let v = p[n]
-			if (isEmpty(v)) continue
-			if (MULTI.has(o.type)) ret[n] = `,${v.join(',')},`
-			else ret[n] = o.hash ? hash(v, o.hash) : v
-		}
-		return ret
-	}
-	toDetail(p) {
-		if (p) { p = this.normalizeAll(p) }
-		else { p = this.p }
-		const ret = { id: p.id }
-		for (const n in p) {
-			const o = this.conf[n]
-			if (!o) continue
-			const v = p[n]
-			if (o.type == 'textarea') ret[n] = v != null ? escapeHtml(v, { br: true }).replace(/\r?\n/g, '<br>') : ''
-			else if (LABELED.has(o.type)) ret[n] = this.labeledValue(n, v)
-			else ret[n] = v
-		}
-		return ret
-	}
-	listFromDB(list) { return list.map(d => this.toDetail(d)) }
-	fields() {
-		const ret = {}
-		for (const f in this.conf) {
-			if (this.conf[f].type == 'db') { continue }
-			ret[f] = this.label(f)
-		}
-		return ret
-	}
 	label(n) {
 		const o = this.conf[n]
 		return o.label ? o.label : uc(n)
@@ -164,14 +168,10 @@ class Self {
 			if (!o.dbValids) continue
 			if (this.errors[n]) continue
 			if (target && !target?.has(n)) continue
-			for (let vn of o.dbValids) {
-				let va = []
-				if (isArray(va)) {
-					va = deepClone(vn)
-					vn = va.shift()
-				}
-				await this._dbValidation(db, vn, n, p[n], ...va)
-			}
+			let va = o.dbValids[vn]
+			if (va === true) va = []
+			else if (!isArray(va)) va = [ va ]
+			await this._dbValidation(db, vn, n, p[n], ...va)
 		}
 	}
 	hasError() { return this.v.hasError() }
