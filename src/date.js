@@ -73,7 +73,7 @@ export function datetimeEndOf(dt, unit = 'day') {
 }
 
 export function dayW(date) {
-  return dateObj(date).day()
+	return dateObj(date).day()
 }
 
 export function epoch(dt = null) {
@@ -90,9 +90,15 @@ export function date2epoch(date) {
 }
 
 export function ymd(v) {
-	if (v)	{
-		const [ y, m, d ] = v.split('-')
-		return [ parseInt(y), parseInt(m), parseInt(d) ]
+	if (v) {
+		if (dayjs.isDayjs(v)) {
+			return [ v.year(), v.month() + 1, v.date() ]
+		}
+		else if (typeof v == 'string') {
+			const [ y, m, d ] = v.split('-')
+			return [ parseInt(y), parseInt(m), parseInt(d) ]
+		}
+		return
 	}
 	const n = new Date()
 	return [ n.getFullYear(), n.getMonth() + 1, n.getDate() ]
@@ -100,16 +106,23 @@ export function ymd(v) {
 
 export function ymdStr(v) {
 	if (v) {
-		if (isString(v)) { v = ymd(v) }
+		if (typeof v == 'string') { v = ymd(v) }
+		else if (dayjs.isDayjs(v)) { v = ymd(v) }
 	}
 	else { v = ymd() }
 	return [ String(v[0]), String(v[1]).padStart(2, '0'), String(v[2]).padStart(2, '0') ].join('-')
 }
 
 export function hm(v) {
-	if (v)	{
-		const [ h, m, s ] = v.split(':')
-		return [ parseInt(h), parseInt(m) ]
+	if (v) {
+		if (dayjs.isDayjs(v)) {
+			return [ v.hour(), v.minute() ]
+		}
+		else if (typeof v == 'string') {
+			const [ h, m, s ] = v.split(':')
+			return [ parseInt(h), parseInt(m) ]
+		}
+		return
 	}
 	const n = new Date()
 	return [ n.getHours(), n.getMinutes() ]
@@ -117,16 +130,23 @@ export function hm(v) {
 
 export function hmStr(v) {
 	if (v) {
-		if (isString(v)) { v = hm(v) }
+		if (typeof v == 'string') { v = hm(v) }
+		else if (dayjs.isDayjs(v)) { v = hm(v) }
 	}
 	else { v = hm() }
 	return v.map(x => String(x).padStart(2, '0')).join(':')
 }
 
 export function hms(v) {
-	if (v)	{
-		const [ h, m, s ] = v.split(':')
-		return [ parseInt(h), parseInt(m), parseInt(s) ]
+	if (v) {
+		if (dayjs.isDayjs(v)) {
+			return [ v.hour(), v.minute(), v.second() ]
+		}
+		else if (typeof v == 'string') {
+			const [ h, m, s ] = v.split(':')
+			return [ parseInt(h), parseInt(m), parseInt(s || 0) ]
+		}
+		return
 	}
 	const n = new Date()
 	return [ n.getHours(), n.getMinutes(), n.getSeconds() ]
@@ -134,7 +154,8 @@ export function hms(v) {
 
 export function hmsStr(v) {
 	if (v) {
-		if (isString(v)) { v = hms(v) }
+		if (typeof v == 'string') { v = hms(v) }
+		else if (dayjs.isDayjs(v)) { v = hms(v) }
 	}
 	else { v = hms() }
 	return v.map(x => String(x).padStart(2, '0')).join(':')

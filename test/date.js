@@ -1,4 +1,4 @@
-import { d, dd } from '../src/index.js'
+import { d, dd, rand, instanceName } from '../src/index.js'
 import * as utils from '../src/date.js'
 Object.assign(globalThis, utils)
 import Test from '../src/test.js'
