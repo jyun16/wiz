@@ -1,13 +1,29 @@
-import { d, dd, isEmpty, isString, isArray, instanceName, objMap, deepClone, equal, uc, hash, includes, Validator } from '../index.js'
+import { d, dd, isEmpty, isString, isArray, equal, uc, hash, deepClone, objMergeCopy, includes, Validator } from '../index.js'
 import { escapeHtml, q2f, q2w } from './utils.js'
 import { VALID_ARRAY_ARGS } from '../validation.js'
 
 const MULTI = new Set([ 'checkbox', 'rich-select' ])
 const LABELED = new Set([ 'select', 'radio', 'checkbox', 'rich-select' ])
+const DEFAULT = {
+	id: { db: 'uint', pk: true, autoIncrement: true },
+	created: { db: 'datetime', default: 'NOW()', format: 'YYYY-MM-DD HH:mm:ss', show: [ 'list', 'detail' ] },
+	modified: { db: 'timestamp', default: 'NOW()', update: 'NOW()', format: 'YYYY-MM-DD HH:mm:ss', show: [ 'list', 'detail' ] },
+}
+const TYPE_DEFAULT = {
+	time: {
+		format: 'HH:mm',
+	},
+	date: {
+		format: 'HH:mm',
+	},
+	calendar: {
+		format: 'YYYY-MM-DD',
+	},
+}
 
 class Self {
 	constructor(conf={}, p={}, opts={}) {
-		this.conf = conf
+		this.setConf(conf)
 		this.v = new Validator(this.lang)
 		this.set(p)
 		if (opts.customErrorMessage) {
@@ -15,6 +31,15 @@ class Self {
 				this.customErrorMessage(method, opts.customErrorMessage[method])
 			}
 		}
+	}
+	setConf(conf) {
+		conf = deepClone(conf)
+		for (const n in conf) {
+			const o = conf[n]
+			if (TYPE_DEFAULT[o.type]) { conf[n] = objMergeCopy(TYPE_DEFAULT[o.type], conf[n]) }
+			if (DEFAULT[n]) { conf[n] = objMergeCopy(DEFAULT[n], conf[n]) }
+		}
+		this.conf = conf
 	}
 	get() { return this.p }
 	set(p) {
@@ -28,7 +53,6 @@ class Self {
 	}
 	isShow(n) {
 		const o = this.conf[n]
-		if (!o.type) return false
 		if (o.show === false) return false
 		if (o.show && !includes(o.show, this._mode)) return false
 		return true

@@ -138,6 +138,10 @@ export function objMerge(target, ...sources) {
 	return target
 }
 
+export function objMergeCopy(target, ...sources) {
+	return objMerge(deepClone(target), ...sources)
+}
+
 export function objDiff(keys, o, old) {
 	const created = {}
 	const changed = {}
