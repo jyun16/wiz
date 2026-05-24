@@ -2,12 +2,13 @@ import _ from 'lodash'
 import jsObj from './jsobj.js'
 
 export function d(...args) {
-	console.log(...args.map(a => {
-		if (isNull(a)) return null
-		const type = a.constructor?.name
-		const dump = [ 'Object', 'Array' ]
-		return dump.includes(type) ? jsObj.dump(a) : a
-	}))
+	cl(...args)
+	// console.log(...args.map(a => {
+	// 	if (isNull(a)) return null
+	// 	const type = a.constructor?.name
+	// 	const dump = [ 'Object', 'Array' ]
+	// 	return dump.includes(type) ? jsObj.dump(a) : a
+	// }))
 }
 
 export function dd(...args) { d(...args) }
@@ -26,6 +27,11 @@ export function caller(depth = 0) {
 	const target = stack[depth]
 	let ret = /\(.+\)/.test(target) ? /\((.+)\)/.exec(target)[1] : target
 	return ret.replace('\n', '').trim().replace(/:\d+$/, '')
+}
+
+export function cl(...args) {
+	args.push(`(${caller(1)})`)
+	console.log.apply(console, args)
 }
 
 export function json(x) { return JSON.stringify(x) }
