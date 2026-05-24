@@ -1,4 +1,4 @@
-import { d, dd, isEmpty, isString, isArray, equal, uc, hash, deepClone, objMergeCopy, includes, Validator } from '../index.js'
+import { d, dd, isEmpty, isString, isArray, equal, uc, hash, deepClone, objMergeCopy, includes, Validator, ymdStr } from '../index.js'
 import { escapeHtml, q2f, q2w } from './utils.js'
 import { VALID_ARRAY_ARGS } from '../validation.js'
 
@@ -81,7 +81,8 @@ class Self {
 			if (!this.isDB(n)) continue
 			let v = p[n]
 			if (isEmpty(v)) continue
-			if (MULTI.has(o.type)) ret[n] = `,${v.join(',')},`
+			const type = o.type
+			if (MULTI.has(type)) ret[n] = `,${v.join(',')},`
 			else ret[n] = o.hash ? hash(v, o.hash) : v
 		}
 		return ret
@@ -105,7 +106,8 @@ class Self {
 	normalize(n, v) {
 		const o = this.conf[n]
 		if (v == null) return v
-		if (MULTI.has(o.type)) {
+		const type = o.type
+		if (MULTI.has(type)) {
 			if (isArray(v)) return v.map(x => x.toString())
 			if (isString(v)) {
 				if (v[0] == '[') return JSON.parse(v).map(x => x.toString())
@@ -114,7 +116,8 @@ class Self {
 			}
 			return [ v.toString() ]
 		}
-		if (o.type == 'textarea') return v
+		if (type == 'textarea') return v
+		else if (type == 'date' || type == 'calendar') return ymdStr(v)
 		return v?.toString()
 	}
 	normalizeAll(p={}) {
@@ -192,10 +195,12 @@ class Self {
 			if (!o.dbValids) continue
 			if (this.errors[n]) continue
 			if (target && !target?.has(n)) continue
-			let va = o.dbValids[vn]
-			if (va === true) va = []
-			else if (!isArray(va)) va = [ va ]
-			await this._dbValidation(db, vn, n, p[n], ...va)
+			for (let vn in o.dbValids) {
+				let va = o.dbValids[vn]
+				if (va === true) va = []
+				else if (!isArray(va)) va = [ va ]
+				await this._dbValidation(db, vn, n, p[n], ...va)
+			}
 		}
 	}
 	hasError() { return this.v.hasError() }
