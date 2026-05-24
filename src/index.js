@@ -2,7 +2,7 @@ import _ from 'lodash'
 import jsObj from './jsobj.js'
 
 export function d(...args) {
-	cl(...args)
+	console.log(...args)
 	// console.log(...args.map(a => {
 	// 	if (isNull(a)) return null
 	// 	const type = a.constructor?.name
