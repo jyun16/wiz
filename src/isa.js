@@ -5,6 +5,15 @@ export default (() => {
     if (!match) return []
     return match[1].split(',').map(arg => arg.trim().replace(/\s*=.*/, ''))
   }
+	const protos = Cls => {
+		const a = []
+		let proto = Cls.prototype
+		while (proto && proto !== Object.prototype) {
+			a.unshift(proto)
+			proto = Object.getPrototypeOf(proto)
+		}
+		return a
+	}
   const constructorArgs = new WeakMap()
   return (...clss) => {
     const reversed = [...clss].reverse()
@@ -14,6 +23,11 @@ export default (() => {
       static __isa_clss = isa
       constructor(...a) {
         for (const Cls of reversed) {
+					for (const proto of protos(Cls)) {
+						Object.getOwnPropertyNames(proto).forEach(n => {
+							if (n !== 'constructor') Base.prototype[n] = proto[n]
+						})
+					}
           if (this.constructor.smartInit) {
             if (!Cls.__isa_clss) {
               if (!constructorArgs.has(Cls)) constructorArgs.set(Cls, getFuncArgs(Cls))
