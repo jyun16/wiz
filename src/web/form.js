@@ -179,10 +179,16 @@ class Self {
 	}
 	async _dbValidation(db, vn, n, p, ...va) {
 		if (vn == 'unique') {
-			const rows = await db.query(`SELECT COUNT(*) AS count FROM ${va[0]} WHERE ${n}=?`, [ p ])
-			if (rows[0].count != 0) {
-				this.v.appendExtraError(vn, n)
+			const table = va[0]
+			const pk = va[1] || 'id'
+			const where = [ `${n}=?` ]
+			const args = [ p[n] ]
+			if (p[pk]) {
+				where.push(`${pk}<>?`)
+				args.push(p[pk])
 			}
+			const rows = await db.query(`SELECT COUNT(*) AS count FROM ${table} WHERE ${where.join(' AND ')}`, args)
+			if (rows[0].count != 0) this.v.appendExtraError(vn, n)
 		}
 	}
 	async dbValidation(db, ...target) {
@@ -199,7 +205,7 @@ class Self {
 				let va = o.dbValids[vn]
 				if (va === true) va = []
 				else if (!isArray(va)) va = [ va ]
-				await this._dbValidation(db, vn, n, p[n], ...va)
+				await this._dbValidation(db, vn, n, p, ...va)
 			}
 		}
 	}
