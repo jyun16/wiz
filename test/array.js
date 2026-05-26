@@ -1,3 +1,4 @@
+import { dd } from '../src/index.js'
 import * as utils from '../src/array.js'
 Object.assign(globalThis, utils)
 import Test from '../src/test.js'
@@ -36,3 +37,6 @@ t.eq('HOGE 2', hoge[1])
 t.eq(undefined, hoge[2])
 t.eq(2, hoge.length)
 t.eq('HOGE 1, HOGE 2', hoge.csv())
+
+t.eq([ 'foo', 'hoge', 'fuga', 'bar' ], arrayMoveHead([ 'hoge', 'fuga', 'foo', 'bar' ], 'foo'))
+t.eq([ 'baz', 'hoge', 'fuga', 'foo', 'bar' ], arrayMoveHead([ 'hoge', 'fuga', 'foo', 'bar' ], 'baz'))

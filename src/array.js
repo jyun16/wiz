@@ -8,6 +8,20 @@ export function arrayUniq(v) {
 	return [...new Set(v)]
 }
 
+export function arrayMoveHead(a, v) {
+	const i = a.indexOf(v)
+	if (i >= 0) a.splice(i, 1)
+	a.unshift(v)
+	return a
+}
+
+export function arrayMoveTail(a, v) {
+	const i = a.indexOf(v)
+	if (i >= 0) a.splice(i, 1)
+	a.push(v)
+	return a
+}
+
 export function arrayConcat(a1, a2) {
 	return [...a1, ...a2]
 }
