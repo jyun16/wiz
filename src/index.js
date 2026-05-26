@@ -3,15 +3,18 @@ import jsObj from './jsobj.js'
 
 export function d(...args) {
 	console.log(...args)
-	// console.log(...args.map(a => {
-	// 	if (isNull(a)) return null
-	// 	const type = a.constructor?.name
-	// 	const dump = [ 'Object', 'Array' ]
-	// 	return dump.includes(type) ? jsObj.dump(a) : a
-	// }))
 }
 
 export function dd(...args) { d(...args) }
+
+export function ddd(...args) {
+	console.log(...args.map(a => {
+		if (isNull(a)) return null
+		const type = a.constructor?.name
+		const dump = [ 'Object', 'Array' ]
+		return dump.includes(type) ? jsObj.dump(a) : a
+	}))
+}
 
 export function callStack() {
 	const ret = new Error().stack.split('at ')
@@ -63,7 +66,7 @@ export function range(start, end, step = 1) {
 	return len > 0 ? Array.from({ length: len }, (_, i) => start + i * step) : []
 }
 
-export function deepClone(v) { return _.cloneDeep(v) }
+export function clone(v) { return _.cloneDeep(v) }
 
 export function isNull(v) {
 	if (v == null || v == undefined) { return true }

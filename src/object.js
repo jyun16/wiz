@@ -1,4 +1,4 @@
-import { equal, isNull, isEmpty, isString, isObject, deepClone } from './index.js'
+import { equal, isNull, isEmpty, isString, isObject, clone } from './index.js'
 
 const splitPath = key => typeof key === 'string' ? key.replace(/\[(\w+)\]/g, '.$1').split('.') : key
 
@@ -22,7 +22,7 @@ export function objTrimDeep(o) {
 }
 
 export function objTrimDeepCopy(o) {
-	return objTrimDeep(deepClone(o))
+	return objTrimDeep(clone(o))
 }
 
 export function objCompact(o) {
@@ -45,7 +45,7 @@ export function objCompactDeep(o) {
 }
 
 export function objCompactDeepCopy(o) {
-	return objCompactDeep(deepClone(o))
+	return objCompactDeep(clone(o))
 }
 
 export function objMap(o, fn) {
@@ -139,7 +139,7 @@ export function objMerge(target, ...sources) {
 }
 
 export function objMergeCopy(target, ...sources) {
-	return objMerge(deepClone(target), ...sources)
+	return objMerge(clone(target), ...sources)
 }
 
 export function objDiff(keys, o, old) {

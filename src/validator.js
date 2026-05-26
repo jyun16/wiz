@@ -1,4 +1,4 @@
-import { dd, isEmpty, isArray, array2obj, deepClone, objSet, sprintf } from './index.js'
+import { dd, isEmpty, isArray, array2obj, clone, objSet, sprintf } from './index.js'
 import validation from './validation.js'
 
 class Self {
@@ -7,7 +7,7 @@ class Self {
 		this.errors = {}
 		this.hasError = _ => !isEmpty(this.errors)
 		this.reset = _ => this.errors = {}
-		this.message = deepClone(Self.base_message[this.lang])
+		this.message = clone(Self.base_message[this.lang])
 		this.appendError = (method, errMsg) => this.errors[method] = errMsg
 		this.appendExtraError = (method, name) => this.appendError(name, this.message.extra[method])
 		this.init()
