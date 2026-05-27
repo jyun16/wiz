@@ -1,4 +1,4 @@
-import { d, dd, isEmpty, isString, isArray, equal, uc, hash, clone, objMergeCopy, objFilter, Validator, ymdStr } from '../index.js'
+import { d, dd, isEmpty, isString, isArray, equal, uc, hash, clone, includes, objMergeCopy, objFilter, Validator, ymdStr } from '../index.js'
 import { escapeHtml, q2f, q2w } from './utils.js'
 import { VALID_ARRAY_ARGS } from '../validation.js'
 
@@ -11,8 +11,8 @@ const TYPE_DEFAULT = {
 }
 const DB_DEFAULT = {
 	id: { db: 'uint', pk: true, autoIncrement: true },
-	created: { db: 'datetime', default: 'NOW()', format: 'YYYY-MM-DD HH:mm:ss', show: [ 'list', 'detail' ] },
-	modified: { db: 'timestamp', default: 'NOW()', update: 'NOW()', format: 'YYYY-MM-DD HH:mm:ss', show: [ 'list', 'detail' ] },
+	created: { db: 'datetime', default: 'NOW()', format: 'YYYY-MM-DD HH:mm:ss', search: 'range', show: [ 'list', 'detail' ] },
+	modified: { db: 'timestamp', default: 'NOW()', update: 'NOW()', format: 'YYYY-MM-DD HH:mm:ss', search: 'range', show: [ 'list', 'detail' ] },
 }
 const SEARCH_DEFAULT = {
 	input: 'like',
@@ -46,8 +46,25 @@ class Self {
 			if (DB_DEFAULT[n]) { conf[n] = objMergeCopy(DB_DEFAULT[n], conf[n]) }
 		}
 		this.conf = conf
-		this.sconf = null
+		return conf
 	}
+	setSearchConf() {
+		const ret = {}
+		const conf = clone(this.conf)
+		for (const n in conf) {
+			const o = conf[n]
+			if (o.show === false) continue
+			if (!o.show || !o.show.includes('search')) continue
+			if (!o.search && SEARCH_DEFAULT[o.type]) { o.search = SEARCH_DEFAULT[o.type] }
+			if (o.db == 'datetime' || o.db == 'timestamp') { o.type = 'datetime' }
+			const valids = objFilter(o.valids, v => SEARCH_VALID.includes(v))
+			delete o?.attrs?.style
+			ret[n] = { ...o, val: '', valids, attrs: { ...(o.attrs || {}) } }
+			delete ret[n].attrs.autofocus
+		}
+		this.conf = ret
+		return ret
+	}	
 	get() { return this.p }
 	set(p) {
 		this.p = this.normalizeAll(p)
@@ -223,23 +240,6 @@ class Self {
 	customValidation(method, func, msg) { this.v.custom(method, func, msg) }
 	q2f(...args) { return q2f(...args) }
 	q2w(q, limit=10) { return q2w(q, limit) }
-	searchConf() {
-		if (this.sconf) return this.sconf
-		const ret = {}
-		const conf = clone(this.conf)
-		for (const n in conf) {
-			const o = conf[n]
-			if (o.show === false) continue
-			if (!o.show || !o.show.includes('search')) continue
-			if (!o.search && SEARCH_DEFAULT[o.type]) { o.search = SEARCH_DEFAULT[o.type] }
-			const valids = objFilter(o.valids, v => SEARCH_VALID.includes(v))
-			delete o?.attrs?.style
-			ret[n] = { ...o, val: '', valids, attrs: { ...(o.attrs || {}) } }
-			delete ret[n].attrs.autofocus
-		}
-		this.sconf = ret
-		return ret
-	}	
 }
 
 export default Self
