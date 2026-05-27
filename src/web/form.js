@@ -50,7 +50,7 @@ class Self {
 	}
 	setSearchConf() {
 		const ret = {}
-		const conf = clone(this.conf)
+		const conf = this.conf
 		for (const n in conf) {
 			const o = conf[n]
 			if (o.show === false) continue
@@ -77,8 +77,11 @@ class Self {
 	}
 	isShow(n) {
 		const o = this.conf[n]
+		const mode = this._mode
 		if (o.show === false) return false
-		if (o.show && !includes(o.show, this._mode)) return false
+		if (o.show && !includes(o.show, mode)) return false
+		if (o.hide && (includes(o.hide, mode) || includes(o.hide, 'all'))) return false
+		if (mode == 'search' && o.search === false) return false
 		return true
 	}
 	isDB(n) {
