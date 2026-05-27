@@ -54,7 +54,8 @@ class Self {
 		for (const n in conf) {
 			const o = conf[n]
 			if (o.show === false) continue
-			if (!o.show || !o.show.includes('search')) continue
+			if (o.show && !o?.show.includes('search')) continue
+			if (o.hide && (includes(o.hide, 'search') || includes(o.hide, 'all'))) continue
 			if (!o.search && SEARCH_DEFAULT[o.type]) { o.search = SEARCH_DEFAULT[o.type] }
 			if (o.db == 'datetime' || o.db == 'timestamp') { o.type = 'datetime' }
 			const valids = objFilter(o.valids, v => SEARCH_VALID.includes(v))
