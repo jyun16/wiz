@@ -1,5 +1,5 @@
 import { d, dd, isEmpty, isString, isArray, equal, uc, hash, clone, includes, objMergeCopy, objFilter, Validator, ymdStr } from '../index.js'
-import { escapeHtml, q2f, q2w } from './utils.js'
+import { escapeHtml } from './utils.js'
 import { VALID_ARRAY_ARGS } from '../validation.js'
 
 const MULTI = new Set([ 'checkbox', 'rich-select' ])
@@ -17,6 +17,8 @@ const DB_DEFAULT = {
 const SEARCH_DEFAULT = {
 	input: 'like',
 	textarea: 'like',
+	radio: 'eq',
+	select: 'eq',
 	checkbox: 'in',
 	'rich-select': 'in',
 	time: 'range',
@@ -48,7 +50,7 @@ class Self {
 		this.conf = conf
 		return conf
 	}
-	setSearchConf() {
+	getSearchConf() {
 		const ret = {}
 		const conf = this.conf
 		for (const n in conf) {
@@ -63,7 +65,6 @@ class Self {
 			ret[n] = { ...o, val: '', valids, attrs: { ...(o.attrs || {}) } }
 			delete ret[n].attrs.autofocus
 		}
-		this.conf = ret
 		return ret
 	}	
 	get() { return this.p }
@@ -73,7 +74,12 @@ class Self {
 		return this.p
 	}
 	mode(mode) {
-		if (mode) this._mode = mode
+		if (mode) {
+			this._mode = mode
+			if (mode == 'search') {
+				this.conf = this.getSearchConf()
+			}
+		}
 		return this._mode
 	}
 	isShow(n) {
@@ -242,8 +248,6 @@ class Self {
 	setError(n, errMsg) { this.v.appendError(n, errMsg) }
 	customErrorMessage(method, msg) { this.v.customMessage(method, msg) }
 	customValidation(method, func, msg) { this.v.custom(method, func, msg) }
-	q2f(...args) { return q2f(...args) }
-	q2w(q, limit=10) { return q2w(q, limit) }
 }
 
 export default Self

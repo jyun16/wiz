@@ -98,7 +98,7 @@ export const safeTags = {
   img: [ 'src' ],
 }
 
-export function q2f(q) {
+export function q2col(q) {
 	objCompact(q)
   let ret = q.f || '*'
   if (q.f && isArray(q.f)) ret = q.f.join(',')
