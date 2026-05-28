@@ -4,6 +4,7 @@ const CONF = {
 		enable: 0,
 	},
 	static: 'public/',
+	sourcemap: 'inline',
 }
 
 import fs from 'fs'
@@ -56,6 +57,7 @@ const jsc = (cb) => {
 		.pipe(esbuild({
 			bundle: true,
 			minify: true,
+			sourcemap: CONF.sourcemap,
 			target: 'es2015',
 			platform: 'browser',
 			format: 'esm',
