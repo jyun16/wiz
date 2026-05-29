@@ -46,6 +46,10 @@ class Self {
 			const o = conf[n]
 			if (TYPE_DEFAULT[o.type]) { conf[n] = objMergeCopy(TYPE_DEFAULT[o.type], conf[n]) }
 			if (DB_DEFAULT[n]) { conf[n] = objMergeCopy(DB_DEFAULT[n], conf[n]) }
+			if (!o.label) { conf[n].label = uc(n) }
+			if (o.type == 'input') {
+				if (!o.attrs?.placeholder) (conf[n].attrs ||= {}).placeholder = conf[n].label
+			}
 		}
 		this.conf = conf
 		return conf
@@ -100,9 +104,11 @@ class Self {
 	}
 	fields() {
 		const ret = {}
-		for (const n in this.conf) {
+		const conf = this.conf
+		for (const n in conf) {
+			const o = conf[n]
 			if (!this.isShow(n)) continue
-			ret[n] = this.label(n)
+			ret[n] = o.label
 		}
 		return ret
 	}
@@ -169,10 +175,6 @@ class Self {
 		this.resetValidation()
 	}
 	resetValidation() { this.v.reset() }
-	label(n) {
-		const o = this.conf[n]
-		return o.label ? o.label : uc(n)
-	}
 	optionLabel(n, value) { return this.conf[n].opts[value] ?? '' }
 	skip4html(type) { return type == 'db' }
 	labeledValue(n, v) {
