@@ -60,6 +60,7 @@ class Self {
 			if (o.hide && (includes(o.hide, 'search') || includes(o.hide, 'all'))) continue
 			if (!o.search && SEARCH_DEFAULT[o.type]) { o.search = SEARCH_DEFAULT[o.type] }
 			if (o.db == 'datetime' || o.db == 'timestamp') { o.type = 'datetime' }
+			if (o.type == 'textarea') (o.attrs ||= {}).placeholder = o.label
 			const valids = objFilter(o.valids, v => SEARCH_VALID.includes(v))
 			delete o?.attrs?.style
 			ret[n] = { ...o, val: '', valids, attrs: { ...(o.attrs || {}) } }
