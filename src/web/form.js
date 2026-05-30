@@ -1,4 +1,7 @@
-import { d, dd, isEmpty, isString, isArray, equal, uc, hash, clone, includes, objMergeCopy, objFilter, Validator, ymdStr } from '../index.js'
+import { d, dd, isEmpty, isString, isArray, isObject,
+	equal, uc, hash, clone, includes, objMergeCopy, objFilter,
+	Validator, ymdStr
+} from '../index.js'
 import { escapeHtml } from './utils.js'
 import { VALID_ARRAY_ARGS } from '../validation.js'
 
@@ -13,6 +16,7 @@ const DB_DEFAULT = {
 	id: { db: 'uint', pk: true, autoIncrement: true },
 	created: { db: 'datetime', default: 'NOW()', format: 'YYYY-MM-DD HH:mm:ss', search: 'range', show: [ 'list', 'detail' ] },
 	modified: { db: 'timestamp', default: 'NOW()', update: 'NOW()', format: 'YYYY-MM-DD HH:mm:ss', search: 'range', show: [ 'list', 'detail' ] },
+	deleted: { db: 'datetime', format: 'YYYY-MM-DD HH:mm:ss', search: 'range', show: [ 'list', 'detail' ] },
 }
 const SEARCH_DEFAULT = {
 	input: 'like',
@@ -124,6 +128,7 @@ class Self {
 			if (isEmpty(v)) continue
 			const type = o.type
 			if (MULTI.has(type)) ret[n] = `,${v.join(',')},`
+			// else if (isObject(v)) ret[n] = JSON.stringify(v)
 			else ret[n] = o.hash ? hash(v, o.hash) : v
 		}
 		return ret
@@ -157,6 +162,7 @@ class Self {
 			}
 			return [ v.toString() ]
 		}
+		if (isObject(v)) return v
 		if (type == 'textarea') return v
 		else if (type == 'date' || type == 'calendar') return ymdStr(v)
 		return v?.toString()

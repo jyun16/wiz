@@ -39,12 +39,18 @@ export function arrayShuffle(a) {
 	return a
 }
 
-export function arrayRandomPick(a) {
-	return arrayShuffle(a).slice(0, Math.floor(Math.random() * a.length) + 1)
-}
-
 export function arrayPick(a, key) {
 	return a.map(v => v[key])
+}
+
+export function arrayRandomPick(a, minMax, max) {
+	if (minMax == null) minMax = 1, max = a.length
+	else if (max == null) max = minMax
+	if (minMax > max) [minMax, max] = [max, minMax]
+	minMax = Math.max(0, Math.min(minMax, a.length))
+	max = Math.max(0, Math.min(max, a.length))
+	const len = minMax + Math.floor(Math.random() * (max - minMax + 1))
+	return arrayShuffle(a).slice(0, len)
 }
 
 export function arrayTrim(a) {

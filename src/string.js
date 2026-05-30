@@ -52,14 +52,18 @@ export function wildMatch(w, str) {
 	return re.test(str)
 }
 
-export function randStr(len = 16) {
+export function randStr(minMax = 16, max) {
 	const S = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-	return Array.from(crypto.getRandomValues(new Uint8Array(len))).map((n) => S[ n % S.length ]).join('')
+	if (max != null && minMax > max) [minMax, max] = [max, minMax]
+	const len = max == null ? minMax : minMax + crypto.getRandomValues(new Uint32Array(1))[0] % (max - minMax + 1)
+	return Array.from(crypto.getRandomValues(new Uint8Array(len))).map(n => S[n % S.length]).join('')
 }
 
-export function randStrTough(len = 16) {
+export function randStrTough(minMax = 16, max) {
 	const S = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:'"<>,.?/`
-	return Array.from(crypto.getRandomValues(new Uint8Array(len))).map((n) => S[ n % S.length ]).join('')
+	if (max != null && minMax > max) [minMax, max] = [max, minMax]
+	const len = max == null ? minMax : minMax + crypto.getRandomValues(new Uint32Array(1))[0] % (max - minMax + 1)
+	return Array.from(crypto.getRandomValues(new Uint8Array(len))).map(n => S[n % S.length]).join('')
 }
 
 const algMap = {
