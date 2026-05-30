@@ -62,6 +62,7 @@ export function objFilter(o, fn) {
 
 export function objPick(o, keys) {
 	const ret = {}
+	if (isString(keys)) keys = keys.split(',')
 	for (const k of keys) if (k in o) ret[k] = o[k]
 	return ret
 }
