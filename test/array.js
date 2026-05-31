@@ -1,7 +1,7 @@
-import { dd } from '../wiz/index.js'
-import * as utils from '../wiz/array.js'
+import { dd } from '../src/index.js'
+import * as utils from '../src/array.js'
 Object.assign(globalThis, utils)
-import Test from '../wiz/test.js'
+import Test from '../src/test.js'
 
 const t = new Test()
 

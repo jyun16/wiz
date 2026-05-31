@@ -1,6 +1,6 @@
-import { includes } from '../../wiz/index.js'
-import Test from '../../wiz/test.js'
-import { escapeHtml, safeTags, removeQuery } from '../../wiz/web/utils.js'
+import { includes } from '../../src/index.js'
+import Test from '../../src/test.js'
+import { escapeHtml, safeTags, removeQuery } from '../../src/web/utils.js'
 
 const t = new Test()
 t.eq(escapeHtml('hoge<br>hoge'), 'hoge&lt;br&gt;hoge')

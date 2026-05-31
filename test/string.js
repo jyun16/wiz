@@ -1,6 +1,6 @@
-import * as utils from '../wiz/string.js'
+import * as utils from '../src/string.js'
 Object.assign(globalThis, utils)
-import Test from '../wiz/test.js'
+import Test from '../src/test.js'
 
 const t = new Test()
 

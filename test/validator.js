@@ -1,9 +1,9 @@
 import util from 'util'
-import * as utils from '../wiz/index.js'
+import * as utils from '../src/index.js'
 Object.assign(globalThis, utils)
-import { d } from '../wiz/debug.js'
-import Test from '../wiz/test.js'
-import Validator from '../wiz/validator.js'
+import { d } from '../src/debug.js'
+import Test from '../src/test.js'
+import Validator from '../src/validator.js'
 
 const t = new Test()
 const v = new Validator()

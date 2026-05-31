@@ -1,7 +1,7 @@
-import { d, dd, rand, instanceName } from '../wiz/index.js'
-import * as utils from '../wiz/date.js'
+import { d, dd, rand, instanceName } from '../src/index.js'
+import * as utils from '../src/date.js'
 Object.assign(globalThis, utils)
-import Test from '../wiz/test.js'
+import Test from '../src/test.js'
 
 const t = new Test()
 

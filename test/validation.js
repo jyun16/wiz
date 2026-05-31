@@ -1,6 +1,6 @@
-import * as utils from '../wiz/index.js'
-import Test from '../wiz/test.js'
-import valid from '../wiz/validation.js'
+import * as utils from '../src/index.js'
+import Test from '../src/test.js'
+import valid from '../src/validation.js'
 
 const t = new Test()
 const v = valid

@@ -6,7 +6,7 @@ const SOURCE_MAP = `SM=1`
 const d = console.log
 const make = process.platform === 'freebsd' ? 'gmake' : 'make'
 
-const wizw = () => { watch('wiz/**/*.js', series(wizc)) }
+const wizw = () => { watch('src/**/*.js', series(wizc)) }
 const wizc = (cb) => {
 	d(execSync(`${make} wiz ${SOURCE_MAP}`).toString())
 	cb()

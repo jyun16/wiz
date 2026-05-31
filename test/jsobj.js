@@ -1,5 +1,5 @@
-import jsObj from '../wiz/jsobj.js'
-import Test from '../wiz/test.js'
+import jsObj from '../src/jsobj.js'
+import Test from '../src/test.js'
 
 const t = new Test()
 

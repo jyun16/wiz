@@ -1,6 +1,6 @@
-import { d } from '../wiz/index.js'
-import Test from '../wiz/test.js'
-import ISA from '../wiz/isa.js'
+import { d } from '../src/index.js'
+import Test from '../src/test.js'
+import ISA from '../src/isa.js'
 
 // smartInit は min すると使えないから注意
 class Hoge {

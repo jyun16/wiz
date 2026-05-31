@@ -1,6 +1,6 @@
-import * as utils from '../wiz/calendar.js'
+import * as utils from '../src/calendar.js'
 Object.assign(globalThis, utils)
-import Test from '../wiz/test.js'
+import Test from '../src/test.js'
 
 const t = new Test()
 t.true(isPublicHoliday('2026-05-03'))
