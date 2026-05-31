@@ -13,7 +13,7 @@ v.v.equal('eq2', 'a', 'b', 'custom error message') // validaation の引数オ�
 v.v.min('min', 'hoge', 4) 
 v.v.max('max', 'hoge', 2)
 const p = { text: 'HOGE', password: 'x' }
-v.appendExtraError('unique', 'uniq')
+v.setExtraError('uniq', 'unique')
 t.true(v.hasError())
 t.eq(v.errors, {
 	req: '必ず入力してください',
