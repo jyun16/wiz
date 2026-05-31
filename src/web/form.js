@@ -231,7 +231,7 @@ class Self {
 				args.push(p[pk])
 			}
 			const rows = await db.query(`SELECT COUNT(*) AS count FROM ${table} WHERE ${where.join(' AND ')}`, args)
-			if (rows[0].count != 0) this.v.appendExtraError(vn, n)
+			if (rows[0].count != 0) this.v.setExtraError(n, vn)
 		}
 	}
 	async dbValidation(db, ...target) {
@@ -254,7 +254,7 @@ class Self {
 	}
 	hasError() { return this.v.hasError() }
 	errors(n) { return n ? this.v.errors[n] : this.v.errors }
-	setError(n, errMsg) { this.v.appendError(n, errMsg) }
+	setError(n, err) { this.v.setError(n, err) }
 	customErrorMessage(method, msg) { this.v.customMessage(method, msg) }
 	customValidation(method, func, msg) { this.v.custom(method, func, msg) }
 }

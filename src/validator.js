@@ -8,8 +8,8 @@ class Self {
 		this.hasError = _ => !isEmpty(this.errors)
 		this.reset = _ => this.errors = {}
 		this.message = clone(Self.base_message[this.lang])
-		this.appendError = (method, errMsg) => this.errors[method] = errMsg
-		this.appendExtraError = (method, name) => this.appendError(name, this.message.extra[method])
+		this.setError = (n, err) => this.errors[n] = err
+		this.setExtraError = (n, method) => this.setError(n, this.message.extra[method])
 		this.init()
 	}
 	init() {
