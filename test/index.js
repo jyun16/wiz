@@ -1,7 +1,7 @@
-import { p, pr, cl } from '../src/debug.js'
-import * as utils from '../src/index.js'
+import { p, pr, cl } from '../wiz/debug.js'
+import * as utils from '../wiz/index.js'
 Object.assign(globalThis, utils)
-import Test from '../src/test.js'
+import Test from '../wiz/test.js'
 
 const isEmptyTest = t => {
 	t.true(isNull(null))

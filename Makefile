@@ -2,7 +2,7 @@ ESBUILD := esbuild
 
 SM_OPT := $(if $(SM),--sourcemap,)
 
-WIZ := src
+WIZ := wiz
 WIZ_ENTRY := $(WIZ)/index.js
 WIZ_MIN := public/js/wiz.min.js
 WIZ_FILES := $(shell find -L $(WIZ) -name "*.js")

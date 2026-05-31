@@ -1,5 +1,5 @@
-import Test from '../src/test.js'
-import Role from '../src/role.js'
+import Test from '../wiz/test.js'
+import Role from '../wiz/role.js'
 
 const t = new Test()
 
