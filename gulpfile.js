@@ -1,11 +1,5 @@
-import fs from 'fs'
-import path from 'path'
 import { execSync } from 'child_process'
-import { series, parallel, watch, src, dest, lastRun } from 'gulp'
-import _browserSync from 'browser-sync'
-import plumber from 'gulp-plumber'
-import rename from 'gulp-rename'
-import pug from 'gulp-pug'
+import { series, parallel, watch, src } from 'gulp'
 import esbuild from 'gulp-esbuild'
 
 const SOURCE_MAP = `SM=1`
