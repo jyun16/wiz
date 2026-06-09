@@ -66,7 +66,7 @@ export function range(start, end, step = 1) {
 	return len > 0 ? Array.from({ length: len }, (_, i) => start + i * step) : []
 }
 
-export function clone(v) { return _.cloneDeep(v) }
+export function clone(v) { return structuredClone(v) }
 
 export function isNull(v) {
 	if (v == null || v == undefined) { return true }
