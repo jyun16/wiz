@@ -47,9 +47,7 @@ export function escape4regexp(re) {
 }
 
 export function wildMatch(w, str) {
-	const e = '_xXWXx_x_'
-	const re = new RegExp('^' + escape4regexp(w.replace('*', e)).replace(e, '.+') + '$')
-	return re.test(str)
+	return new RegExp('^' + escape4regexp(w).replace(/\\\*/g, '.*') + '$').test(str)
 }
 
 export function randStr(minMax = 16, max) {
